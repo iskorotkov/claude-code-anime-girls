@@ -1,0 +1,8 @@
+{
+  "name": "claude-code-anime-girls",
+  "version": "1.0.0",
+  "description": "Nagatoro-themed tsundere companion for Claude Code -- teases Senpai while they code",
+  "author": {
+    "name": "Ivan Korotkov"
+  }
+}
