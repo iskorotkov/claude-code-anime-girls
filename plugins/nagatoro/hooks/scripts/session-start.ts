@@ -17,6 +17,13 @@ interface SessionStartInput {
   hook_event_name: string;
 }
 
+function timeOfDayPool(hour: number): string[] {
+  if (hour >= 6 && hour < 12) return GREETINGS.morning;
+  if (hour >= 12 && hour < 18) return GREETINGS.afternoon;
+  if (hour >= 18 && hour < 23) return GREETINGS.evening;
+  return GREETINGS.night;
+}
+
 export async function run(_input: SessionStartInput) {
   const state = await loadState();
   const now = new Date();
@@ -32,7 +39,7 @@ export async function run(_input: SessionStartInput) {
     } else if (state.mood === "jealous" && state.jealousyTarget) {
       greeting = substituteRival(pickLine(GREETINGS.jealousReturn), state.jealousyTarget);
     } else {
-      greeting = pickLine(GREETINGS.returning);
+      greeting = pickLine(timeOfDayPool(now.getHours()));
     }
   }
 

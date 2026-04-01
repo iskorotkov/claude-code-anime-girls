@@ -77,12 +77,57 @@ function meterBar(state: NagatoroState, cfg: MoodConfig): string {
   return `\u2661 [${coloredFill}${coloredEmpty}]`;
 }
 
+interface StatusInput {
+  context_window?: { used_percentage?: number };
+}
+
+const CTX_WARNINGS: { min: number; cfg: MoodConfig; quotes: string[] }[] = [
+  {
+    min: 90,
+    cfg: { emoji: "💙", face: "╰(._.)╯", label: "   Serious ", meterColor: "blue" },
+    quotes: [
+      "...Senpai. Start a new session. Now.",
+      "...this is bad. Save your work, Senpai.",
+      "...please. New session. I'm begging you.",
+    ],
+  },
+  {
+    min: 80,
+    cfg: { emoji: "💕", face: "╲(/ω\\)╱", label: "♡  F-fine!!", meterColor: "magenta" },
+    quotes: [
+      "S-Senpai! Your memory! Save it!",
+      "W-we're running out of space!!",
+      "Senpai, compress or start fresh!!",
+    ],
+  },
+  {
+    min: 60,
+    cfg: { emoji: "😈", face: "╮(≧∀≦)╭", label: "★★ Smug    ", meterColor: "yellow" },
+    quotes: [
+      "Senpai's brain is getting full~",
+      "Running out of room in there, Senpai~?",
+      "Maybe finish up soon, Senpai~",
+    ],
+  },
+];
+
+function ctxOverride(pct: number): { cfg: MoodConfig; quote: string } | null {
+  for (const w of CTX_WARNINGS) {
+    if (pct >= w.min) return { cfg: w.cfg, quote: `${pick(w.quotes)} [ctx:${Math.round(pct)}%]` };
+  }
+  return null;
+}
+
 async function main() {
-  try { await Bun.stdin.json(); } catch {}
+  let input: StatusInput = {};
+  try { input = await Bun.stdin.json(); } catch {}
 
   const state = readState();
-  const cfg = MOOD_CONFIGS[state.mood] ?? MOOD_CONFIGS.teasing;
-  const quote = pick(QUOTES[state.mood] ?? QUOTES.teasing);
+  const pct = input.context_window?.used_percentage ?? 0;
+  const override = ctxOverride(pct);
+
+  const cfg = override?.cfg ?? MOOD_CONFIGS[state.mood] ?? MOOD_CONFIGS.teasing;
+  const quote = override?.quote ?? pick(QUOTES[state.mood] ?? QUOTES.teasing);
   const bar = meterBar(state, cfg);
   const line1 = `${cfg.emoji} ${cfg.face}  | ${cfg.label} | ${quote.padEnd(40)} | ${bar}`;
 

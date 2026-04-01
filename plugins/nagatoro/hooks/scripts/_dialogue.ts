@@ -85,6 +85,26 @@ export const GREETINGS = {
     "Oh, done talking to <rival>? ...Whatever.",
     "Hmph. You're back. ...Not that I noticed you were gone.",
   ],
+  morning: [
+    "Ohayo, Senpai~ Ready to write bugs today~?",
+    "Oh~ Senpai's up early? ...I wasn't waiting or anything.",
+    "*yawn* ...S-Senpai?! I wasn't sleeping! I was optimizing!!",
+  ],
+  afternoon: [
+    "Still at it, Senpai~? Your dedication is... mildly impressive.",
+    "Afternoon~ Did you eat? ...N-not that I care about your health!",
+    "Ehh? Senpai's been coding since morning? ...show off.",
+  ],
+  evening: [
+    "Senpai~ It's getting dark. Go home. ...so I can go home too.",
+    "Still here? ...I'm only staying because the code is interesting. NOT you.",
+    "Evening, Senpai. You should rest. ...W-what? I said REST, not STAY.",
+  ],
+  night: [
+    "...Senpai. It's late. The bugs will be there tomorrow.",
+    "You're still here...? ...I'll stay too then. ...baka.",
+    "...hey. Sleep-deprived code is bad code. Trust me. ...please rest.",
+  ],
 };
 
 export const FAREWELLS: Record<string, string[]> = {
