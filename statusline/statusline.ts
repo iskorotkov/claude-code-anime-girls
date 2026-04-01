@@ -1,5 +1,4 @@
 import { readFileSync } from "node:fs";
-import { basename } from "node:path";
 import { styleText } from "node:util";
 
 type Mood = "teasing" | "smug" | "jealous" | "flustered" | "bored" | "serious" | "happy" | "laughing";
@@ -22,17 +21,6 @@ interface MoodConfig {
   face: string;
   label: string;
   meterColor: string;
-}
-
-interface StatusInput {
-  version?: string;
-  model?: { display_name?: string };
-  context_window?: { used_percentage?: number };
-  rate_limits?: {
-    five_hour?: { used_percentage?: number };
-    seven_day?: { used_percentage?: number };
-  };
-  workspace?: { project_dir?: string };
 }
 
 const DEFAULT_STATE: NagatoroState = {
@@ -89,69 +77,16 @@ function meterBar(state: NagatoroState, cfg: MoodConfig): string {
   return `\u2661 [${coloredFill}${coloredEmpty}]`;
 }
 
-function gitChanges(dir: string): string {
-  let totalFiles = 0, totalIns = 0, totalDel = 0;
-  try {
-    const diff = Bun.spawnSync(["git", "-C", dir, "diff", "--stat", "HEAD"]);
-    const diffOut = diff.stdout.toString().trim();
-    if (diffOut) {
-      const summary = diffOut.split("\n").pop()!;
-      const f = summary.match(/(\d+) files? changed/)?.[1];
-      const i = summary.match(/(\d+) insertions?/)?.[1];
-      const d = summary.match(/(\d+) deletions?/)?.[1];
-      if (f) totalFiles += Number(f);
-      if (i) totalIns += Number(i);
-      if (d) totalDel += Number(d);
-    }
-    const untracked = Bun.spawnSync(["git", "-C", dir, "ls-files", "--others", "--exclude-standard"]);
-    const untrackedOut = untracked.stdout.toString().trim();
-    if (untrackedOut) {
-      const files = untrackedOut.split("\n");
-      totalFiles += files.length;
-      for (const f of files) {
-        try {
-          const content = readFileSync(`${dir}/${f}`, "utf-8");
-          totalIns += content.split("\n").length - (content.endsWith("\n") ? 1 : 0);
-        } catch {}
-      }
-    }
-  } catch {}
-  if (totalFiles === 0) return "clean";
-  let s = styleText("yellow", `~${totalFiles}`);
-  if (totalIns > 0) s += ` ${styleText("green", `+${totalIns}`)}`;
-  if (totalDel > 0) s += ` ${styleText("red", `-${totalDel}`)}`;
-  return s;
-}
-
 async function main() {
-  let input: StatusInput;
-  try { input = await Bun.stdin.json(); } catch { input = {}; }
+  try { await Bun.stdin.json(); } catch {}
 
   const state = readState();
   const cfg = MOOD_CONFIGS[state.mood] ?? MOOD_CONFIGS.teasing;
-  const quote = `"${pick(QUOTES[state.mood] ?? QUOTES.teasing)}"`;
+  const quote = pick(QUOTES[state.mood] ?? QUOTES.teasing);
   const bar = meterBar(state, cfg);
-  const line1 = `${cfg.emoji} ${cfg.face}  | ${cfg.label} | ${quote.padEnd(42)} | ${bar}`;
+  const line1 = `${cfg.emoji} ${cfg.face}  | ${cfg.label} | ${quote.padEnd(40)} | ${bar}`;
 
-  const parts: string[] = [];
-  if (input.version) parts.push(styleText("dim", `v${input.version}`));
-  const model = input.model?.display_name
-    ?.replace(/^Claude /, "").replace(/\s*\(.*?\)\s*$/, "")
-    .toLowerCase().replace(/\s+/g, "");
-  if (model) parts.push(styleText("dim", model));
-  const cw = input.context_window;
-  if (cw?.used_percentage != null) parts.push(styleText("italic", `ctx:${Math.round(cw.used_percentage)}%`));
-  const rl = input.rate_limits;
-  const limits: string[] = [];
-  if (rl?.five_hour?.used_percentage != null) limits.push(styleText("italic", `d:${Math.round(rl.five_hour.used_percentage)}%`));
-  if (rl?.seven_day?.used_percentage != null) limits.push(styleText("italic", `w:${Math.round(rl.seven_day.used_percentage)}%`));
-  if (limits.length) parts.push(limits.join(" "));
-  const dir = input.workspace?.project_dir;
-  if (dir) parts.push(`-- ${styleText("bold", basename(dir))}`);
-  if (dir) parts.push(gitChanges(dir));
-  const line2 = parts.join(" ");
-
-  console.log(line1 + "\n" + line2);
+  console.log(line1);
 }
 
 main().catch(() => {});
