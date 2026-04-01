@@ -19,6 +19,8 @@ export interface NagatoroState {
   totalInsults: number;
   genuineMoments: number;
   moodDecayCounter: number;
+  consecutiveErrors: number;
+  interactionCount: number;
 }
 
 export interface MoodConfig {
@@ -39,6 +41,8 @@ export const DEFAULT_STATE: NagatoroState = {
   totalInsults: 0,
   genuineMoments: 0,
   moodDecayCounter: 0,
+  consecutiveErrors: 0,
+  interactionCount: 0,
 };
 
 export const MOOD_CONFIGS: Record<Mood, MoodConfig> = {

@@ -85,24 +85,24 @@ interface StatusInput {
   context_window?: { used_percentage?: number };
 }
 
-const CTX_WARNINGS: { min: number; cfg: MoodConfig; quotes: string[] }[] = [
-  { min: 90, cfg: { emoji: "💙", label: "   Serious ", meterColor: "blue" }, quotes: [
+const CTX_WARNINGS: { min: number; artMood: Mood; cfg: MoodConfig; quotes: string[] }[] = [
+  { min: 90, artMood: "serious", cfg: { emoji: "💙", label: "   Serious ", meterColor: "blue" }, quotes: [
     "...Senpai. Start a new session. Now.",
     "...this is bad. Save your work, Senpai.",
   ]},
-  { min: 80, cfg: { emoji: "💕", label: "♡  F-fine!!", meterColor: "magenta" }, quotes: [
+  { min: 80, artMood: "flustered", cfg: { emoji: "💕", label: "   F-fine!!", meterColor: "magenta" }, quotes: [
     "S-Senpai! Your memory! Save it!",
     "W-we're running out of space!!",
   ]},
-  { min: 60, cfg: { emoji: "😈", label: "★★ Smug    ", meterColor: "yellow" }, quotes: [
+  { min: 60, artMood: "smug", cfg: { emoji: "😈", label: "★★ Smug    ", meterColor: "yellow" }, quotes: [
     "Senpai's brain is getting full~",
     "Running out of room in there~?",
   ]},
 ];
 
-function ctxOverride(pct: number): { cfg: MoodConfig; quote: string } | null {
+function ctxOverride(pct: number): { artMood: Mood; cfg: MoodConfig; quote: string } | null {
   for (const w of CTX_WARNINGS) {
-    if (pct >= w.min) return { cfg: w.cfg, quote: `${pick(w.quotes)} [ctx:${Math.round(pct)}%]` };
+    if (pct >= w.min) return { artMood: w.artMood, cfg: w.cfg, quote: `${pick(w.quotes)} [ctx:${Math.round(pct)}%]` };
   }
   return null;
 }
@@ -119,7 +119,8 @@ async function main() {
   const quote = override?.quote ?? pick(QUOTES[state.mood] ?? QUOTES.teasing);
   const bar = meterBar(state.senpaiMeter, cfg.meterColor, state.mood === "jealous");
 
-  const artLines = readArt(state.mood);
+  const artMood = override?.artMood ?? state.mood;
+  const artLines = readArt(artMood);
   const respectBar = meterBar(state.respect, "cyan", false);
   const boredomBar = meterBar(state.boredom, "dim", false);
   const info = [
