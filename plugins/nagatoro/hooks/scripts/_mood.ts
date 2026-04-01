@@ -84,7 +84,7 @@ export function applyMoodEffects(
 
   if (trigger === "interaction") {
     next.moodDecayCounter++;
-  } else if (trigger !== "idle") {
+  } else if (trigger !== "idle" && trigger !== "task_success") {
     next.moodDecayCounter = 0;
   }
 
