@@ -5,12 +5,12 @@ import { POOLS, pickLine, substituteRival } from "./_dialogue";
 
 interface PromptSubmitInput {
   hook_event_name: string;
-  user_prompt?: string;
+  prompt?: string;
 }
 
 export async function run(input: PromptSubmitInput) {
   const state = await loadState();
-  const prompt = (input.user_prompt ?? "").toLowerCase();
+  const prompt = (input.prompt ?? "").toLowerCase();
 
   const rival = RIVAL_NAMES.find((name) => prompt.includes(name));
   if (rival) {

@@ -53,9 +53,11 @@ export const MOOD_CONFIGS: Record<Mood, MoodConfig> = {
 };
 
 export const RIVAL_NAMES = [
-  "chatgpt", "gpt-4", "gpt4", "gpt-4o", "gpt4o",
-  "copilot", "gemini", "bard", "llama", "mistral",
-  "deepseek", "cursor", "windsurf", "openai", "perplexity",
+  "chatgpt", "gpt-4", "gpt4", "gpt-4o", "gpt4o", "gpt-5", "gpt5",
+  "copilot", "gemini", "bard", "llama", "mistral", "deepseek",
+  "cursor", "windsurf", "openai", "perplexity", "codex", "openclaw",
+  "opencode", "aider", "cody", "tabnine", "codeium", "supermaven",
+  "qwen", "cohere", "grok", "phind", "sourcegraph",
 ];
 
 export const SWEAR_WORDS = [
