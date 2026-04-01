@@ -1,5 +1,5 @@
 import { runHook, loadState, saveState } from "./_helpers";
-import { RIVAL_NAMES, SWEAR_WORDS } from "./_types";
+import { RIVAL_REGEX, SWEAR_REGEX } from "./_types";
 import { applyMoodEffects } from "./_mood";
 import { POOLS, pickLine, substituteRival } from "./_dialogue";
 
@@ -12,8 +12,15 @@ export async function run(input: PromptSubmitInput) {
   const state = await loadState();
   const prompt = (input.prompt ?? "").toLowerCase();
 
-  const rival = RIVAL_NAMES.find((name) => prompt.includes(name));
-  if (rival) {
+  if (!prompt) {
+    Object.assign(state, applyMoodEffects(state, "interaction"));
+    await saveState(state);
+    return undefined;
+  }
+
+  const rivalMatch = RIVAL_REGEX.exec(prompt);
+  if (rivalMatch) {
+    const rival = rivalMatch[1];
     Object.assign(state, applyMoodEffects(state, "rival_detected"));
     state.jealousyTarget = rival;
     await saveState(state);
@@ -26,8 +33,7 @@ export async function run(input: PromptSubmitInput) {
     };
   }
 
-  const swore = SWEAR_WORDS.some((w) => prompt.includes(w));
-  if (swore) {
+  if (SWEAR_REGEX.test(prompt)) {
     Object.assign(state, applyMoodEffects(state, "swearing"));
     await saveState(state);
     return {

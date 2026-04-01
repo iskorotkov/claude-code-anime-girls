@@ -68,3 +68,6 @@ export const SWEAR_WORDS = [
   "damn", "shit", "fuck", "crap", "hell",
   "wtf", "dammit", "ass", "bastard", "bullshit",
 ];
+
+export const RIVAL_REGEX = new RegExp(`(${RIVAL_NAMES.join("|")})`, "i");
+export const SWEAR_REGEX = new RegExp(`(${SWEAR_WORDS.join("|")})`, "i");

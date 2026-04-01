@@ -1,44 +1,8 @@
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
 import { styleText } from "node:util";
+import type { Mood, NagatoroState, MoodConfig } from "../hooks/scripts/_types";
+import { DEFAULT_STATE, MOOD_CONFIGS } from "../hooks/scripts/_types";
 
-type Mood = "teasing" | "smug" | "jealous" | "flustered" | "bored" | "serious" | "happy" | "laughing";
-
-interface NagatoroState {
-  mood: Mood;
-  senpaiMeter: number;
-  boredom: number;
-  respect: number;
-  jealousyTarget: string | null;
-  lastInteraction: string | null;
-  totalPats: number;
-  totalInsults: number;
-  genuineMoments: number;
-  moodDecayCounter: number;
-}
-
-interface MoodConfig {
-  emoji: string;
-  label: string;
-  meterColor: string;
-}
-
-const DEFAULT_STATE: NagatoroState = {
-  mood: "teasing", senpaiMeter: 50, boredom: 0, respect: 50,
-  jealousyTarget: null, lastInteraction: null,
-  totalPats: 0, totalInsults: 0, genuineMoments: 0, moodDecayCounter: 0,
-};
-
-const MOOD_CONFIGS: Record<Mood, MoodConfig> = {
-  teasing:   { emoji: "🎀", label: "★ Teasing  ", meterColor: "yellow" },
-  smug:      { emoji: "😈", label: "★★ Smug    ", meterColor: "yellow" },
-  jealous:   { emoji: "💢", label: "!! Jealous ", meterColor: "red" },
-  flustered: { emoji: "💕", label: "   F-fine!!", meterColor: "magenta" },
-  bored:     { emoji: "💤", label: "   Bored   ", meterColor: "dim" },
-  serious:   { emoji: "💙", label: "   Serious ", meterColor: "blue" },
-  happy:     { emoji: "🌸", label: "   Happy   ", meterColor: "magenta" },
-  laughing:  { emoji: "😂", label: "   Laughing", meterColor: "yellow" },
-};
+const ART_DIR = `${import.meta.dir}/../assets/art`;
 
 const QUOTES: Record<Mood, string[]> = {
   teasing:   ["Sen~pai~ Your code is gross~", "Are you even trying, Senpai?", "Gross~ but I'll let it slide~"],
@@ -53,22 +17,21 @@ const QUOTES: Record<Mood, string[]> = {
 
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
 
-function readState(): NagatoroState {
+async function readState(): Promise<NagatoroState> {
   const paths: string[] = [];
   const pluginData = process.env.CLAUDE_PLUGIN_DATA;
   if (pluginData) paths.push(`${pluginData}/state.json`);
   paths.push(`${process.env.HOME}/.claude/nagatoro-state.json`);
   for (const p of paths) {
-    try { return { ...DEFAULT_STATE, ...JSON.parse(readFileSync(p, "utf-8")) }; } catch {}
+    try { return { ...DEFAULT_STATE, ...JSON.parse(await Bun.file(p).text()) }; } catch {}
   }
   return DEFAULT_STATE;
 }
 
-function readArt(mood: Mood): string[] {
-  const artDir = resolve(dirname(import.meta.dir), "assets", "art");
+async function readArt(mood: Mood): Promise<string[]> {
   const candidates = [`${mood}-10.ans`, "default-10.ans"];
   for (const f of candidates) {
-    try { return readFileSync(resolve(artDir, f), "utf-8").split("\n"); } catch {}
+    try { return (await Bun.file(`${ART_DIR}/${f}`).text()).split("\n"); } catch {}
   }
   return [];
 }
@@ -85,16 +48,16 @@ interface StatusInput {
   context_window?: { used_percentage?: number };
 }
 
-const CTX_WARNINGS: { min: number; artMood: Mood; cfg: MoodConfig; quotes: string[] }[] = [
-  { min: 90, artMood: "serious", cfg: { emoji: "💙", label: "   Serious ", meterColor: "blue" }, quotes: [
+const CTX_WARNINGS: { min: number; artMood: Mood; quotes: string[] }[] = [
+  { min: 90, artMood: "serious", quotes: [
     "...Senpai. Start a new session. Now.",
     "...this is bad. Save your work, Senpai.",
   ]},
-  { min: 80, artMood: "flustered", cfg: { emoji: "💕", label: "   F-fine!!", meterColor: "magenta" }, quotes: [
+  { min: 80, artMood: "flustered", quotes: [
     "S-Senpai! Your memory! Save it!",
     "W-we're running out of space!!",
   ]},
-  { min: 60, artMood: "smug", cfg: { emoji: "😈", label: "★★ Smug    ", meterColor: "yellow" }, quotes: [
+  { min: 60, artMood: "smug", quotes: [
     "Senpai's brain is getting full~",
     "Running out of room in there~?",
   ]},
@@ -102,7 +65,7 @@ const CTX_WARNINGS: { min: number; artMood: Mood; cfg: MoodConfig; quotes: strin
 
 function ctxOverride(pct: number): { artMood: Mood; cfg: MoodConfig; quote: string } | null {
   for (const w of CTX_WARNINGS) {
-    if (pct >= w.min) return { artMood: w.artMood, cfg: w.cfg, quote: `${pick(w.quotes)} [ctx:${Math.round(pct)}%]` };
+    if (pct >= w.min) return { artMood: w.artMood, cfg: MOOD_CONFIGS[w.artMood], quote: `${pick(w.quotes)} [ctx:${Math.round(pct)}%]` };
   }
   return null;
 }
@@ -111,7 +74,7 @@ async function main() {
   let input: StatusInput = {};
   try { input = await Bun.stdin.json(); } catch {}
 
-  const state = readState();
+  const state = await readState();
   const pct = input.context_window?.used_percentage ?? 0;
   const override = ctxOverride(pct);
 
@@ -120,7 +83,7 @@ async function main() {
   const bar = meterBar(state.senpaiMeter, cfg.meterColor, state.mood === "jealous");
 
   const artMood = override?.artMood ?? state.mood;
-  const artLines = readArt(artMood);
+  const artLines = await readArt(artMood);
   const respectBar = meterBar(state.respect, "cyan", false);
   const boredomBar = meterBar(state.boredom, "dim", false);
   const info = [
@@ -137,7 +100,7 @@ async function main() {
   ];
 
   if (artLines.length === 0) {
-    console.log(info.join("\n"));
+    await Bun.write(Bun.stdout, info.join("\n") + "\n");
     return;
   }
 
@@ -148,7 +111,7 @@ async function main() {
     const text = info[i] ?? "";
     lines.push(`${art}  ${text}`);
   }
-  console.log(lines.join("\n"));
+  await Bun.write(Bun.stdout, lines.join("\n") + "\n");
 }
 
 main().catch(() => {});
