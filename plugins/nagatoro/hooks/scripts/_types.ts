@@ -45,10 +45,10 @@ export const MOOD_CONFIGS: Record<Mood, MoodConfig> = {
   teasing:   { emoji: "🎀", face: "ヽ(≧w≦)ノ",  label: "★ Teasing  ", meterColor: "yellow" },
   smug:      { emoji: "😈", face: "╮(≧∀≦)╭",   label: "★★ Smug    ", meterColor: "yellow" },
   jealous:   { emoji: "💢", face: "ヽ(◣Д◢)ノ",  label: "!! Jealous ", meterColor: "red" },
-  flustered: { emoji: "💕", face: "╲(/ω\\)╱",   label: "♡  F-fine!!", meterColor: "magenta" },
-  bored:     { emoji: "💤", face: "╮(︶ω︶)╭",   label: "☆  Bored   ", meterColor: "dim" },
+  flustered: { emoji: "💕", face: "╲(/ω\\)╱",   label: "   F-fine!!", meterColor: "magenta" },
+  bored:     { emoji: "💤", face: "╮(︶ω︶)╭",   label: "   Bored   ", meterColor: "dim" },
   serious:   { emoji: "💙", face: "╰(._.)╯",    label: "   Serious ", meterColor: "blue" },
-  happy:     { emoji: "🌸", face: "ヽ(≧▽≦)ノ",  label: "♡  Happy   ", meterColor: "magenta" },
+  happy:     { emoji: "🌸", face: "ヽ(≧▽≦)ノ",  label: "   Happy   ", meterColor: "magenta" },
   laughing:  { emoji: "😂", face: "ヽ(>∀<)ノ",  label: "   Laughing", meterColor: "yellow" },
 };
 

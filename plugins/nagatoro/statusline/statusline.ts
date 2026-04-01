@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
 import { styleText } from "node:util";
 
 type Mood = "teasing" | "smug" | "jealous" | "flustered" | "bored" | "serious" | "happy" | "laughing";
@@ -18,7 +19,6 @@ interface NagatoroState {
 
 interface MoodConfig {
   emoji: string;
-  face: string;
   label: string;
   meterColor: string;
 }
@@ -30,25 +30,25 @@ const DEFAULT_STATE: NagatoroState = {
 };
 
 const MOOD_CONFIGS: Record<Mood, MoodConfig> = {
-  teasing:   { emoji: "\u{1F380}", face: "\u30FD(\u2267w\u2266)\uFF89",  label: "\u2605 Teasing  ", meterColor: "yellow" },
-  smug:      { emoji: "\u{1F608}", face: "\u256E(\u2267\u2200\u2266)\u256D",   label: "\u2605\u2605 Smug    ", meterColor: "yellow" },
-  jealous:   { emoji: "\u{1F4A2}", face: "\u30FD(\u25E3\u0414\u25E2)\uFF89",  label: "!! Jealous ", meterColor: "red" },
-  flustered: { emoji: "\u{1F495}", face: "\u2572(/\u03C9\\)\u2571",   label: "\u2661  F-fine!!", meterColor: "magenta" },
-  bored:     { emoji: "\u{1F4A4}", face: "\u256E(\uFE36\u03C9\uFE36)\u256D",   label: "\u2606  Bored   ", meterColor: "dim" },
-  serious:   { emoji: "\u{1F499}", face: "\u2570(._.) \u256F",    label: "   Serious ", meterColor: "blue" },
-  happy:     { emoji: "\u{1F338}", face: "\u30FD(\u2267\u25BD\u2266)\uFF89",  label: "\u2661  Happy   ", meterColor: "magenta" },
-  laughing:  { emoji: "\u{1F602}", face: "\u30FD(>\u2200<)\uFF89",  label: "   Laughing", meterColor: "yellow" },
+  teasing:   { emoji: "🎀", label: "★ Teasing  ", meterColor: "yellow" },
+  smug:      { emoji: "😈", label: "★★ Smug    ", meterColor: "yellow" },
+  jealous:   { emoji: "💢", label: "!! Jealous ", meterColor: "red" },
+  flustered: { emoji: "💕", label: "   F-fine!!", meterColor: "magenta" },
+  bored:     { emoji: "💤", label: "   Bored   ", meterColor: "dim" },
+  serious:   { emoji: "💙", label: "   Serious ", meterColor: "blue" },
+  happy:     { emoji: "🌸", label: "   Happy   ", meterColor: "magenta" },
+  laughing:  { emoji: "😂", label: "   Laughing", meterColor: "yellow" },
 };
 
 const QUOTES: Record<Mood, string[]> = {
-  teasing:   ["Sen~pai~ Your code is gross~", "Eww, what is this variable name?", "Are you even trying, Senpai?", "Gross~ but I'll let it slide~"],
-  smug:      ["Hmph, I already knew that~", "Too easy for me~", "You need me, admit it~", "Senpai can't do anything alone~"],
-  jealous:   ["WHO is that other AI?!", "You don't need anyone else!", "I saw you talking to THEM.", "Am I not good enough?!"],
-  flustered: ["I-It's not like I care!", "D-Don't look at me!", "I'm only helping because I'm bored!", "W-Whatever, Senpai..."],
-  bored:     ["...", "This is so dull.", "Wake me when it's interesting.", "Zzz..."],
-  serious:   ["I believe in you, Senpai.", "Let's get this done.", "Focus up, Senpai.", "You've got this."],
-  happy:     ["Yay~ Senpai noticed me!", "This is actually fun!", "Keep going, Senpai~!", "Hehe~ nice one!"],
-  laughing:  ["AHAHA Senpai you're hopeless!", "I can't stop laughing!", "Pfft-- seriously?!", "LOL Senpai what was THAT?!"],
+  teasing:   ["Sen~pai~ Your code is gross~", "Are you even trying, Senpai?", "Gross~ but I'll let it slide~"],
+  smug:      ["Too easy for me~", "You need me, admit it~", "Senpai can't do anything alone~"],
+  jealous:   ["WHO is that other AI?!", "You don't need anyone else!", "Am I not good enough?!"],
+  flustered: ["I-It's not like I care!", "D-Don't look at me!", "W-Whatever, Senpai..."],
+  bored:     ["...", "This is so dull.", "Wake me when it's interesting."],
+  serious:   ["I believe in you, Senpai.", "Focus up, Senpai.", "You've got this."],
+  happy:     ["This is actually fun!", "Keep going, Senpai~!", "Hehe~ nice one!"],
+  laughing:  ["AHAHA Senpai you're hopeless!", "Pfft-- seriously?!", "LOL what was THAT?!"],
 };
 
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -59,22 +59,26 @@ function readState(): NagatoroState {
   if (pluginData) paths.push(`${pluginData}/state.json`);
   paths.push(`${process.env.HOME}/.claude/nagatoro-state.json`);
   for (const p of paths) {
-    try { return JSON.parse(readFileSync(p, "utf-8")); } catch {}
+    try { return { ...DEFAULT_STATE, ...JSON.parse(readFileSync(p, "utf-8")) }; } catch {}
   }
   return DEFAULT_STATE;
 }
 
-function meterBar(state: NagatoroState, cfg: MoodConfig): string {
-  const filled = Math.round(state.senpaiMeter / 10);
+function readArt(mood: Mood): string[] {
+  const artDir = resolve(dirname(import.meta.dir), "assets", "art");
+  const candidates = [`${mood}-10.ans`, "default-10.ans"];
+  for (const f of candidates) {
+    try { return readFileSync(resolve(artDir, f), "utf-8").split("\n"); } catch {}
+  }
+  return [];
+}
+
+function meterBar(value: number, color: string, jealous: boolean): string {
+  const filled = Math.round(value / 10);
   const empty = 10 - filled;
-  const fillChar = state.mood === "jealous" ? "!" : "\u2588";
-  const filledStr = fillChar.repeat(filled);
-  const emptyStr = "\u2591".repeat(empty);
-  const coloredFill = cfg.meterColor === "dim"
-    ? styleText("dim", filledStr)
-    : styleText(cfg.meterColor as any, filledStr);
-  const coloredEmpty = styleText("dim", emptyStr);
-  return `\u2661 [${coloredFill}${coloredEmpty}]`;
+  const ch = jealous ? "!" : "\u2588";
+  const f = color === "dim" ? styleText("dim", ch.repeat(filled)) : styleText(color as any, ch.repeat(filled));
+  return `[${f}${styleText("dim", "\u2591".repeat(empty))}]`;
 }
 
 interface StatusInput {
@@ -82,33 +86,18 @@ interface StatusInput {
 }
 
 const CTX_WARNINGS: { min: number; cfg: MoodConfig; quotes: string[] }[] = [
-  {
-    min: 90,
-    cfg: { emoji: "💙", face: "╰(._.)╯", label: "   Serious ", meterColor: "blue" },
-    quotes: [
-      "...Senpai. Start a new session. Now.",
-      "...this is bad. Save your work, Senpai.",
-      "...please. New session. I'm begging you.",
-    ],
-  },
-  {
-    min: 80,
-    cfg: { emoji: "💕", face: "╲(/ω\\)╱", label: "♡  F-fine!!", meterColor: "magenta" },
-    quotes: [
-      "S-Senpai! Your memory! Save it!",
-      "W-we're running out of space!!",
-      "Senpai, compress or start fresh!!",
-    ],
-  },
-  {
-    min: 60,
-    cfg: { emoji: "😈", face: "╮(≧∀≦)╭", label: "★★ Smug    ", meterColor: "yellow" },
-    quotes: [
-      "Senpai's brain is getting full~",
-      "Running out of room in there, Senpai~?",
-      "Maybe finish up soon, Senpai~",
-    ],
-  },
+  { min: 90, cfg: { emoji: "💙", label: "   Serious ", meterColor: "blue" }, quotes: [
+    "...Senpai. Start a new session. Now.",
+    "...this is bad. Save your work, Senpai.",
+  ]},
+  { min: 80, cfg: { emoji: "💕", label: "♡  F-fine!!", meterColor: "magenta" }, quotes: [
+    "S-Senpai! Your memory! Save it!",
+    "W-we're running out of space!!",
+  ]},
+  { min: 60, cfg: { emoji: "😈", label: "★★ Smug    ", meterColor: "yellow" }, quotes: [
+    "Senpai's brain is getting full~",
+    "Running out of room in there~?",
+  ]},
 ];
 
 function ctxOverride(pct: number): { cfg: MoodConfig; quote: string } | null {
@@ -128,10 +117,37 @@ async function main() {
 
   const cfg = override?.cfg ?? MOOD_CONFIGS[state.mood] ?? MOOD_CONFIGS.teasing;
   const quote = override?.quote ?? pick(QUOTES[state.mood] ?? QUOTES.teasing);
-  const bar = meterBar(state, cfg);
-  const line1 = `${cfg.emoji} ${cfg.face}  | ${cfg.label} | ${quote.padEnd(40)} | ${bar}`;
+  const bar = meterBar(state.senpaiMeter, cfg.meterColor, state.mood === "jealous");
 
-  console.log(line1);
+  const artLines = readArt(state.mood);
+  const respectBar = meterBar(state.respect, "cyan", false);
+  const boredomBar = meterBar(state.boredom, "dim", false);
+  const info = [
+    `${cfg.emoji} ${cfg.label}`,
+    ``,
+    `${quote}`,
+    ``,
+    `Senpai  ${bar} ${state.senpaiMeter}%`,
+    `Respect ${respectBar} ${state.respect}%`,
+    `Boredom ${boredomBar} ${state.boredom}%`,
+    ``,
+    `Pats: ${state.totalPats}  Swears: ${state.totalInsults}  Genuine: ${state.genuineMoments}`,
+    state.jealousyTarget ? `Rival: ${state.jealousyTarget}` : ``,
+  ];
+
+  if (artLines.length === 0) {
+    console.log(info.join("\n"));
+    return;
+  }
+
+  const rows = Math.max(artLines.length, info.length);
+  const lines: string[] = [];
+  for (let i = 0; i < rows; i++) {
+    const art = artLines[i] ?? "";
+    const text = info[i] ?? "";
+    lines.push(`${art}  ${text}`);
+  }
+  console.log(lines.join("\n"));
 }
 
 main().catch(() => {});

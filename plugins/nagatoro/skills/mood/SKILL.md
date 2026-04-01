@@ -13,15 +13,15 @@ Check on Nagatoro's current state. Read-only, does not mutate anything.
 
 1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_helpers.ts --read` to get current state.
 2. Parse the JSON output. Extract: `mood`, `senpaiMeter`, `respect`, `boredom`, `totalPats`, `totalInsults`, `genuineMoments`, `jealousyTarget`.
-3. Display a formatted status card using the template below.
+3. Display the status card.
 4. After the card, add a mood-appropriate in-character comment from Nagatoro.
+
+Note: Nagatoro's ASCII art portrait is shown in the statusline, not here. ANSI art does not render in Claude's text output.
 
 ## Status card template
 
-Pick the emoji and face from the mood table, then render:
-
 ```
-<emoji> <face> <mood label>
+<mood label>
 
 Senpai Meter:  [<filled><empty>] XX%
 Respect:       [<filled><empty>] XX%
@@ -36,18 +36,18 @@ Stats:
 
 Use 20-character bars with filled blocks and empty blocks to represent percentages.
 
-## Mood face table
+## Mood label table
 
-| Mood | Emoji | Face |
-|---|---|---|
-| teasing | ribbon emoji | happy kaomoji with raised arms |
-| smug | devil emoji | shrugging smug kaomoji |
-| jealous | anger emoji | angry kaomoji with raised arms |
-| flustered | hearts emoji | embarrassed kaomoji covering face |
-| bored | sleep emoji | sleepy shrugging kaomoji |
-| serious | blue heart emoji | sad kaomoji with lowered arms |
-| happy | cherry blossom emoji | excited kaomoji with raised arms |
-| laughing | laughing emoji | laughing kaomoji with raised arms |
+| Mood | Label |
+|---|---|
+| teasing | "★ Teasing" |
+| smug | "★★ Smug" |
+| jealous | "!! Jealous" |
+| flustered | "♡ F-fine!!" |
+| bored | "☆ Bored" |
+| serious | "Serious" |
+| happy | "♡ Happy" |
+| laughing | "Laughing" |
 
 ## Mood-appropriate comments
 
