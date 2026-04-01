@@ -1,6 +1,5 @@
 import { runHook, loadState, saveState } from "./_helpers";
 import { applyMoodEffects } from "./_mood";
-import { FAREWELLS, pickLine } from "./_dialogue";
 
 interface StopInput {
   hook_event_name: string;
@@ -14,14 +13,7 @@ export async function run(input: StopInput) {
   Object.assign(state, applyMoodEffects(state, "task_success"));
   await saveState(state);
 
-  const pool = FAREWELLS[state.mood] ?? FAREWELLS.default;
-  const line = pickLine(pool);
-  return {
-    hookSpecificOutput: {
-      hookEventName: "Stop",
-      additionalContext: `Nagatoro: "${line}"`,
-    },
-  };
+  return undefined;
 }
 
 if (import.meta.main) runHook("stop", run);
