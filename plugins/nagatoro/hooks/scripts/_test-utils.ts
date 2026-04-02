@@ -8,3 +8,7 @@ export const ALL_MOODS: Mood[] = [
 export function makeState(overrides?: Partial<NagatoroState>): NagatoroState {
   return { ...DEFAULT_STATE, ...overrides };
 }
+
+export function savedState(mockSaveState: { mock: { calls: unknown[][] } }): NagatoroState {
+  return mockSaveState.mock.calls[0][0] as NagatoroState;
+}

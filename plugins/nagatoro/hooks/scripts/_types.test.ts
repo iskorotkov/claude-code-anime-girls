@@ -38,11 +38,10 @@ describe("MOOD_CONFIGS", () => {
     }
   });
 
-  it("each entry has emoji, face, label, meterColor strings", () => {
+  it("each entry has emoji, label, meterColor strings", () => {
     for (const mood of ALL_MOODS) {
       const cfg = MOOD_CONFIGS[mood];
       expect(typeof cfg.emoji).toBe("string");
-      expect(typeof cfg.face).toBe("string");
       expect(typeof cfg.label).toBe("string");
       expect(typeof cfg.meterColor).toBe("string");
     }

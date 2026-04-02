@@ -6,7 +6,7 @@ interface StopInput {
   stop_hook_active?: boolean;
 }
 
-export async function run(input: StopInput) {
+export async function run(input: StopInput): Promise<undefined> {
   if (input.stop_hook_active) return undefined;
 
   const state = await loadState();

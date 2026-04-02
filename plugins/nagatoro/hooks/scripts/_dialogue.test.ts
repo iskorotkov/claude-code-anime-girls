@@ -1,8 +1,7 @@
-import { describe, it, expect, spyOn, afterEach } from "bun:test";
+import { describe, it, expect, spyOn } from "bun:test";
 import {
   POOLS,
   GREETINGS,
-  FAREWELLS,
   pickLine,
   substituteRival,
 } from "./_dialogue";
@@ -19,23 +18,14 @@ describe("POOLS", () => {
 
 describe("GREETINGS", () => {
   const keys = [
-    "firstEver", "returning", "longAbsence", "jealousReturn",
+    "firstEver", "longAbsence", "jealousReturn",
     "morning", "afternoon", "evening", "night",
   ] as const;
 
-  it("has all 8 keys with non-empty arrays", () => {
+  it("has all 7 keys with non-empty arrays", () => {
     for (const key of keys) {
       expect(Array.isArray(GREETINGS[key])).toBe(true);
       expect(GREETINGS[key].length).toBeGreaterThan(0);
-    }
-  });
-});
-
-describe("FAREWELLS", () => {
-  it("has teasing, happy, default keys with non-empty arrays", () => {
-    for (const key of ["teasing", "happy", "default"]) {
-      expect(Array.isArray(FAREWELLS[key])).toBe(true);
-      expect(FAREWELLS[key].length).toBeGreaterThan(0);
     }
   });
 });

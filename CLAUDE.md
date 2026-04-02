@@ -21,4 +21,4 @@ bun test
 ## Notes
 
 - All hook scripts use the shared `runHook` boilerplate from `_helpers.ts`.
-- Skills mutate state via `bun hooks/scripts/_helpers.ts --pat|--compliment|--read|--feed`.
+- Skills mutate state via `bun hooks/scripts/_cli.ts --pat|--compliment|--read|--feed`.

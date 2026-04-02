@@ -1,5 +1,5 @@
 import { runHook, loadState, saveState } from "./_helpers";
-import { MOOD_CONFIGS } from "./_types";
+import { MOOD_CONFIGS, type HookOutput, type NagatoroState } from "./_types";
 import { applyMoodEffects, computeBoredom } from "./_mood";
 import { GREETINGS, pickLine, substituteRival } from "./_dialogue";
 
@@ -24,32 +24,19 @@ function timeOfDayPool(hour: number): string[] {
   return GREETINGS.night;
 }
 
-export async function run(_input: SessionStartInput) {
-  const state = await loadState();
-  const now = new Date();
-  state.boredom = computeBoredom(state, now);
+function pickGreeting(state: NagatoroState, now: Date): { greeting: string; isLongAbsence: boolean } {
+  if (!state.lastInteraction) return { greeting: pickLine(GREETINGS.firstEver), isLongAbsence: false };
 
-  let greeting: string;
-  if (!state.lastInteraction) {
-    greeting = pickLine(GREETINGS.firstEver);
-  } else {
-    const idle = (now.getTime() - new Date(state.lastInteraction).getTime()) / 60000;
-    if (idle > 240) {
-      Object.assign(state, applyMoodEffects(state, "idle"));
-      greeting = pickLine(GREETINGS.longAbsence);
-    } else if (state.mood === "jealous" && state.jealousyTarget) {
-      greeting = substituteRival(pickLine(GREETINGS.jealousReturn), state.jealousyTarget);
-    } else {
-      greeting = pickLine(timeOfDayPool(now.getHours()));
-    }
-  }
+  const idle = (now.getTime() - new Date(state.lastInteraction).getTime()) / 60000;
+  if (idle > 240) return { greeting: pickLine(GREETINGS.longAbsence), isLongAbsence: true };
+  if (state.mood === "jealous" && state.jealousyTarget)
+    return { greeting: substituteRival(pickLine(GREETINGS.jealousReturn), state.jealousyTarget), isLongAbsence: false };
+  return { greeting: pickLine(timeOfDayPool(now.getHours())), isLongAbsence: false };
+}
 
-  state.boredom = 0;
-  state.lastInteraction = now.toISOString();
-  await saveState(state);
-
+function buildSessionContext(state: NagatoroState, greeting: string): string {
   const config = MOOD_CONFIGS[state.mood];
-  const context = [
+  return [
     PERSONALITY,
     "",
     `She just said: "${greeting}"`,
@@ -57,11 +44,24 @@ export async function run(_input: SessionStartInput) {
     `Senpai meter: ${state.senpaiMeter}/100`,
     state.jealousyTarget ? `Jealousy target: ${state.jealousyTarget}` : "",
   ].filter(Boolean).join("\n");
+}
+
+export async function run(_input: SessionStartInput): Promise<HookOutput> {
+  const state = await loadState();
+  const now = new Date();
+  state.boredom = computeBoredom(state, now);
+
+  const { greeting, isLongAbsence } = pickGreeting(state, now);
+  if (isLongAbsence) Object.assign(state, applyMoodEffects(state, "idle"));
+
+  state.boredom = 0;
+  state.lastInteraction = now.toISOString();
+  await saveState(state);
 
   return {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
-      additionalContext: context,
+      additionalContext: buildSessionContext(state, greeting),
     },
   };
 }

@@ -2,10 +2,10 @@
 name: ask-joke
 description: "Make Nagatoro tell a programming joke. They're bad. She loves them. Triggers: '/ask-joke'."
 argument-hint: ""
-allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_helpers.ts *)
+allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
 ---
 
-1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_helpers.ts --read`
+1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --read`
 2. Nagatoro tells a bad programming joke and laughs at her own joke:
    - Tell an actual programming joke/pun
    - She delivers it with way too much confidence

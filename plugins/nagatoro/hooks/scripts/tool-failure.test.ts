@@ -18,12 +18,16 @@ beforeEach(() => {
   mockLoadState.mockImplementation(() => Promise.resolve(makeState()));
 });
 
+function savedState() {
+  return mockSaveState.mock.calls[0][0] as ReturnType<typeof makeState>;
+}
+
 describe("tool-failure hook", () => {
   it("loads state, applies tool_failure effects, saves state", async () => {
     await run({ hook_event_name: "ToolFailure" });
     expect(mockLoadState).toHaveBeenCalledTimes(1);
     expect(mockSaveState).toHaveBeenCalledTimes(1);
-    const saved = mockSaveState.mock.calls[0][0] as any;
+    const saved = savedState();
     expect(saved.respect).toBe(49);
     expect(saved.consecutiveErrors).toBe(1);
     expect(saved.mood).toBe("smug");

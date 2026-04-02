@@ -60,6 +60,10 @@ describe("transitionMood", () => {
   it("idle with boredom=79 -> same mood", () => {
     expect(transitionMood(makeState({ boredom: 79, mood: "smug" }), "idle")).toBe("smug");
   });
+  it("feed: keeps current mood", () => {
+    const s = makeState({ mood: "smug" });
+    expect(transitionMood(s, "feed")).toBe("smug");
+  });
 });
 
 describe("applyMoodEffects", () => {
@@ -139,6 +143,14 @@ describe("applyMoodEffects", () => {
   });
   it("lastInteraction NOT updated on idle", () => {
     expect(applyMoodEffects(makeState({ lastInteraction: "old" }), "idle").lastInteraction).toBe("old");
+  });
+  it("feed: +1 senpaiMeter, -10 boredom", () => {
+    const s = makeState({ senpaiMeter: 50, boredom: 30 });
+    const next = applyMoodEffects(s, "feed");
+    expect(next.senpaiMeter).toBe(51);
+    expect(next.boredom).toBe(20);
+    expect(next.consecutiveErrors).toBe(0);
+    expect(next.moodDecayCounter).toBe(0);
   });
   it("does not mutate the original state object", () => {
     const original = makeState({ senpaiMeter: 50, totalPats: 0 });

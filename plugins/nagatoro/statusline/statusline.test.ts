@@ -1,5 +1,5 @@
 import { describe, it, expect, spyOn, afterEach, beforeEach } from "bun:test";
-import { pick, meterBar, ctxOverride } from "./statusline";
+import { meterBar, ctxOverride } from "./statusline";
 import { MOOD_CONFIGS } from "../hooks/scripts/_types";
 
 const stripAnsi = (s: string) => s.replace(/\x1b\[[0-9;]*m/g, "");
@@ -8,26 +8,6 @@ const EMPTY = "\u2591";
 
 let randomSpy: ReturnType<typeof spyOn>;
 afterEach(() => { randomSpy?.mockRestore(); });
-
-// ---------------------------------------------------------------------------
-// pick
-// ---------------------------------------------------------------------------
-describe("pick", () => {
-  it("returns first element when Math.random is 0", () => {
-    randomSpy = spyOn(Math, "random").mockReturnValue(0);
-    expect(pick(["a", "b", "c"])).toBe("a");
-  });
-
-  it("returns last element when Math.random is 0.99", () => {
-    randomSpy = spyOn(Math, "random").mockReturnValue(0.99);
-    expect(pick(["a", "b", "c"])).toBe("c");
-  });
-
-  it("works with a single-element array", () => {
-    randomSpy = spyOn(Math, "random").mockReturnValue(0);
-    expect(pick([42])).toBe(42);
-  });
-});
 
 // ---------------------------------------------------------------------------
 // meterBar

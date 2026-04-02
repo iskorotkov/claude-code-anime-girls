@@ -2,7 +2,7 @@ import { mkdtemp, rm, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it, expect, beforeEach, afterAll } from "bun:test";
-import { DEFAULT_STATE, type NagatoroState } from "./_types";
+import { DEFAULT_STATE } from "./_types";
 import { makeState } from "./_test-utils";
 
 const testDir = await mkdtemp(join(tmpdir(), "nagatoro-test-"));

@@ -22,6 +22,10 @@ beforeEach(() => {
 
 afterEach(() => randomSpy.mockReturnValue(1));
 
+function savedState() {
+  return mockSaveState.mock.calls[0][0] as ReturnType<typeof makeState>;
+}
+
 describe("stop hook", () => {
   it("skips when stop_hook_active is true", async () => {
     const result = await run({ hook_event_name: "Stop", stop_hook_active: true });
@@ -34,7 +38,7 @@ describe("stop hook", () => {
     await run({ hook_event_name: "Stop", stop_hook_active: false });
     expect(mockLoadState).toHaveBeenCalledTimes(1);
     expect(mockSaveState).toHaveBeenCalledTimes(1);
-    const saved = mockSaveState.mock.calls[0][0] as any;
+    const saved = savedState();
     expect(saved.respect).toBe(52);
     expect(saved.consecutiveErrors).toBe(0);
     expect(saved.mood).toBe("teasing");
@@ -42,7 +46,7 @@ describe("stop hook", () => {
 
   it("applies task_success effects when stop_hook_active is undefined", async () => {
     await run({ hook_event_name: "Stop" });
-    const saved = mockSaveState.mock.calls[0][0] as any;
+    const saved = savedState();
     expect(saved.respect).toBe(52);
   });
 

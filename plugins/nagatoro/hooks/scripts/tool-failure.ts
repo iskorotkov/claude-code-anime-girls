@@ -6,7 +6,7 @@ interface ToolFailureInput {
   tool_name?: string;
 }
 
-export async function run(_input: ToolFailureInput) {
+export async function run(_input: ToolFailureInput): Promise<undefined> {
   const state = await loadState();
   Object.assign(state, applyMoodEffects(state, "tool_failure"));
   await saveState(state);

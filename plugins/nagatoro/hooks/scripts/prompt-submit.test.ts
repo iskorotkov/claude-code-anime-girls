@@ -1,6 +1,5 @@
 import { describe, it, expect, mock, beforeEach, afterEach, spyOn } from "bun:test";
 import { makeState } from "./_test-utils";
-import { POOLS } from "./_dialogue";
 
 const mockLoadState = mock(() => Promise.resolve(makeState()));
 const mockSaveState = mock(() => Promise.resolve());

@@ -1,6 +1,7 @@
 import { runHook, loadState, saveState } from "./_helpers";
-import { RIVAL_REGEX, SWEAR_REGEX } from "./_types";
+import { RIVAL_REGEX, SWEAR_REGEX, type HookOutput, type NagatoroState } from "./_types";
 import { applyMoodEffects, computeBoredom } from "./_mood";
+import type { MoodTrigger } from "./_mood";
 import { POOLS, pickLine, substituteRival } from "./_dialogue";
 
 interface PromptSubmitInput {
@@ -8,46 +9,37 @@ interface PromptSubmitInput {
   prompt?: string;
 }
 
-export async function run(input: PromptSubmitInput) {
-  const state = await loadState();
-  state.boredom = computeBoredom(state, new Date());
-  const prompt = (input.prompt ?? "").toLowerCase();
-
-  if (!prompt) {
-    Object.assign(state, applyMoodEffects(state, "interaction"));
-    await saveState(state);
-    return undefined;
-  }
+function detectTrigger(
+  prompt: string, state: NagatoroState,
+): { trigger: MoodTrigger; reaction: string | null; jealousyTarget?: string } {
+  if (!prompt) return { trigger: "interaction", reaction: null };
 
   const rivalMatch = RIVAL_REGEX.exec(prompt);
   if (rivalMatch) {
     const rival = rivalMatch[1];
-    Object.assign(state, applyMoodEffects(state, "rival_detected"));
-    state.jealousyTarget = rival;
-    await saveState(state);
     const line = substituteRival(pickLine(POOLS.jealous), rival);
-    return {
-      hookSpecificOutput: {
-        hookEventName: "UserPromptSubmit",
-        additionalContext: `Nagatoro reacts: "${line}"`,
-      },
-    };
+    return { trigger: "rival_detected", reaction: `Nagatoro reacts: "${line}"`, jealousyTarget: rival };
   }
 
   if (SWEAR_REGEX.test(prompt)) {
-    Object.assign(state, applyMoodEffects(state, "swearing"));
-    await saveState(state);
-    return {
-      hookSpecificOutput: {
-        hookEventName: "UserPromptSubmit",
-        additionalContext: `Nagatoro reacts: "${pickLine(POOLS.laughing)}"`,
-      },
-    };
+    return { trigger: "swearing", reaction: `Nagatoro reacts: "${pickLine(POOLS.laughing)}"` };
   }
 
-  Object.assign(state, applyMoodEffects(state, "interaction"));
+  return { trigger: "interaction", reaction: null };
+}
+
+export async function run(input: PromptSubmitInput): Promise<HookOutput | undefined> {
+  const state = await loadState();
+  state.boredom = computeBoredom(state, new Date());
+  const prompt = (input.prompt ?? "").toLowerCase();
+
+  const { trigger, reaction, jealousyTarget } = detectTrigger(prompt, state);
+  Object.assign(state, applyMoodEffects(state, trigger));
+  if (jealousyTarget) state.jealousyTarget = jealousyTarget;
   await saveState(state);
-  return undefined;
+
+  if (!reaction) return undefined;
+  return { hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: reaction } };
 }
 
 if (import.meta.main) runHook("prompt-submit", run);

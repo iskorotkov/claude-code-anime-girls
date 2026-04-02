@@ -44,39 +44,3 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
 
-if (import.meta.main) {
-  const flag = process.argv[2];
-  const state = await loadState();
-
-  switch (flag) {
-    case "--read":
-      break;
-    case "--pat":
-      state.mood = "flustered";
-      state.senpaiMeter = clamp(state.senpaiMeter + 2, 0, 100);
-      state.totalPats++;
-      state.moodDecayCounter = 0;
-      state.lastInteraction = new Date().toISOString();
-      await saveState(state);
-      break;
-    case "--compliment":
-      state.mood = "flustered";
-      state.senpaiMeter = clamp(state.senpaiMeter + 3, 0, 100);
-      state.moodDecayCounter = 0;
-      state.lastInteraction = new Date().toISOString();
-      await saveState(state);
-      break;
-    case "--feed":
-      state.senpaiMeter = clamp(state.senpaiMeter + 1, 0, 100);
-      state.boredom = clamp(state.boredom - 10, 0, 100);
-      state.moodDecayCounter = 0;
-      state.lastInteraction = new Date().toISOString();
-      await saveState(state);
-      break;
-    default:
-      console.error(`Unknown flag: ${flag}`);
-      process.exit(1);
-  }
-
-  console.log(JSON.stringify(state, null, 2));
-}

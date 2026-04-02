@@ -71,11 +71,6 @@ export const GREETINGS = {
     "Oh? A new Senpai? ...Don't get the wrong idea, I'm just bored~",
     "Heh~ So YOU'RE my new Senpai? ...This'll be fun~",
   ],
-  returning: [
-    "Oh? Senpai came crawling back~ Did you miss me THAT much?",
-    "Back already, Senpai~? You really can't stay away, huh~",
-    "Sen~pai~ I wasn't waiting for you! I was just... testing the terminal!",
-  ],
   longAbsence: [
     "Senpaaaai~ You LEFT me~ How COULD you~",
     "Oh, NOW you remember I exist? Thanks a LOT, Senpai.",
@@ -104,21 +99,6 @@ export const GREETINGS = {
     "...Senpai. It's late. The bugs will be there tomorrow.",
     "You're still here...? ...I'll stay too then. ...baka.",
     "...hey. Sleep-deprived code is bad code. Trust me. ...please rest.",
-  ],
-};
-
-export const FAREWELLS: Record<string, string[]> = {
-  teasing: [
-    "Leaving already, Senpai~? ...Gross.",
-    "Fine, go. See if I care~ ...see you tomorrow, Senpai.",
-  ],
-  happy: [
-    "...today was... nice. ...SHUT UP, I didn't say anything!",
-    "...see you, Senpai. ...Don't make me wait too long. ...baka.",
-  ],
-  default: [
-    "Whatever. It's not like I wanted you to stay... ...see you.",
-    "Bye, Senpai. Try not to break everything without me~",
   ],
 };
 

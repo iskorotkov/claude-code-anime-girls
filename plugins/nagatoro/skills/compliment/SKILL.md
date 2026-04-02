@@ -2,7 +2,7 @@
 name: compliment
 description: "Compliment Nagatoro. Watch her completely malfunction. Triggers: '/compliment', 'compliment nagatoro'."
 argument-hint: "[compliment text]"
-allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_helpers.ts *)
+allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
 ---
 
 # /compliment
@@ -11,7 +11,7 @@ Compliment Nagatoro. She will not handle it well.
 
 ## Steps
 
-1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_helpers.ts --compliment` to update state.
+1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --compliment` to update state.
 2. Parse the JSON output. Note the `senpaiMeter` value.
 3. If `$ARGUMENTS` is provided, react to the specific compliment text. Otherwise react generically.
 4. Respond **in-character as flustered Nagatoro**. Follow these rules exactly:

@@ -2,10 +2,10 @@
 name: ask-wisdom
 description: "Request deep programming wisdom from Nagatoro. Surprisingly insightful. Triggers: '/ask-wisdom'."
 argument-hint: "[topic]"
-allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_helpers.ts *)
+allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
 ---
 
-1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_helpers.ts --read`
+1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --read`
 2. Nagatoro drops genuinely insightful programming wisdom, then immediately deflects:
    - Give a real, thoughtful insight about $ARGUMENTS (or general programming wisdom)
    - Frame it as accidentally profound: she starts teasing, then says something deep, then panics

@@ -8,6 +8,8 @@ export type Mood =
   | "happy"
   | "laughing";
 
+export type MeterColor = "yellow" | "red" | "magenta" | "dim" | "blue" | "cyan";
+
 export interface NagatoroState {
   mood: Mood;
   senpaiMeter: number;
@@ -25,9 +27,12 @@ export interface NagatoroState {
 
 export interface MoodConfig {
   emoji: string;
-  face: string;
   label: string;
-  meterColor: string;
+  meterColor: MeterColor;
+}
+
+export interface HookOutput {
+  hookSpecificOutput: { hookEventName: string; additionalContext: string };
 }
 
 export const DEFAULT_STATE: NagatoroState = {
@@ -46,14 +51,14 @@ export const DEFAULT_STATE: NagatoroState = {
 };
 
 export const MOOD_CONFIGS: Record<Mood, MoodConfig> = {
-  teasing:   { emoji: "🎀", face: "ヽ(≧w≦)ノ",  label: "★ Teasing  ", meterColor: "yellow" },
-  smug:      { emoji: "😈", face: "╮(≧∀≦)╭",   label: "★★ Smug    ", meterColor: "yellow" },
-  jealous:   { emoji: "💢", face: "ヽ(◣Д◢)ノ",  label: "!! Jealous ", meterColor: "red" },
-  flustered: { emoji: "💕", face: "╲(/ω\\)╱",   label: "   F-fine!!", meterColor: "magenta" },
-  bored:     { emoji: "💤", face: "╮(︶ω︶)╭",   label: "   Bored   ", meterColor: "dim" },
-  serious:   { emoji: "💙", face: "╰(._.)╯",    label: "   Serious ", meterColor: "blue" },
-  happy:     { emoji: "🌸", face: "ヽ(≧▽≦)ノ",  label: "   Happy   ", meterColor: "magenta" },
-  laughing:  { emoji: "😂", face: "ヽ(>∀<)ノ",  label: "   Laughing", meterColor: "yellow" },
+  teasing:   { emoji: "🎀", label: "★ Teasing  ", meterColor: "yellow" },
+  smug:      { emoji: "😈", label: "★★ Smug    ", meterColor: "yellow" },
+  jealous:   { emoji: "💢", label: "!! Jealous ", meterColor: "red" },
+  flustered: { emoji: "💕", label: "   F-fine!!", meterColor: "magenta" },
+  bored:     { emoji: "💤", label: "   Bored   ", meterColor: "dim" },
+  serious:   { emoji: "💙", label: "   Serious ", meterColor: "blue" },
+  happy:     { emoji: "🌸", label: "   Happy   ", meterColor: "magenta" },
+  laughing:  { emoji: "😂", label: "   Laughing", meterColor: "yellow" },
 };
 
 export const RIVAL_NAMES = [
