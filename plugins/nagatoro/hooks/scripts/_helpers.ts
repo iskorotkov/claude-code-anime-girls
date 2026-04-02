@@ -1,5 +1,5 @@
 import { mkdir } from "node:fs/promises";
-import { DEFAULT_STATE, type NagatoroState } from "./_types";
+import { ART_HEIGHTS, DEFAULT_STATE, type ArtHeight, type Mood, type NagatoroState } from "./_types";
 
 const STATE_PATH = (() => {
   const pluginData = process.env.CLAUDE_PLUGIN_DATA;
@@ -24,7 +24,7 @@ export async function runHook<I, O>(
 export async function loadState(): Promise<NagatoroState> {
   try {
     const raw = await Bun.file(STATE_PATH).text();
-    return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+    return sanitizeState({ ...DEFAULT_STATE, ...JSON.parse(raw) });
   } catch {
     return { ...DEFAULT_STATE };
   }
@@ -42,5 +42,38 @@ export async function saveState(state: NagatoroState): Promise<void> {
 
 export function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
+}
+
+const VALID_MOODS: Set<string> = new Set([
+  "teasing", "smug", "jealous", "flustered",
+  "bored", "serious", "happy", "laughing",
+]);
+
+function sanitizeNumber(v: unknown, fallback: number, min: number, max: number): number {
+  if (typeof v !== "number" || Number.isNaN(v)) return fallback;
+  return clamp(v, min, max);
+}
+
+function sanitizeCounter(v: unknown, fallback: number): number {
+  if (typeof v !== "number" || Number.isNaN(v)) return fallback;
+  return Math.max(0, Math.floor(v));
+}
+
+export function sanitizeState(raw: Record<string, unknown>): NagatoroState {
+  return {
+    mood: VALID_MOODS.has(raw.mood as string) ? raw.mood as Mood : DEFAULT_STATE.mood,
+    senpaiMeter: sanitizeNumber(raw.senpaiMeter, DEFAULT_STATE.senpaiMeter, 0, 100),
+    boredom: sanitizeNumber(raw.boredom, DEFAULT_STATE.boredom, 0, 100),
+    respect: sanitizeNumber(raw.respect, DEFAULT_STATE.respect, 0, 100),
+    jealousyTarget: typeof raw.jealousyTarget === "string" ? raw.jealousyTarget : null,
+    lastInteraction: typeof raw.lastInteraction === "string" ? raw.lastInteraction : null,
+    totalPats: sanitizeCounter(raw.totalPats, DEFAULT_STATE.totalPats),
+    totalInsults: sanitizeCounter(raw.totalInsults, DEFAULT_STATE.totalInsults),
+    genuineMoments: sanitizeCounter(raw.genuineMoments, DEFAULT_STATE.genuineMoments),
+    moodDecayCounter: sanitizeCounter(raw.moodDecayCounter, DEFAULT_STATE.moodDecayCounter),
+    consecutiveErrors: sanitizeCounter(raw.consecutiveErrors, DEFAULT_STATE.consecutiveErrors),
+    interactionCount: sanitizeCounter(raw.interactionCount, DEFAULT_STATE.interactionCount),
+    artHeight: ART_HEIGHTS.includes(raw.artHeight as any) ? raw.artHeight as ArtHeight : DEFAULT_STATE.artHeight,
+  };
 }
 

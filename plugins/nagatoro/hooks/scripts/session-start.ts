@@ -49,11 +49,15 @@ function buildSessionContext(state: NagatoroState, greeting: string): string {
 export async function run(_input: SessionStartInput): Promise<HookOutput> {
   const state = await loadState();
   const now = new Date();
+  // Compute boredom from idle time so mood transition in applyMoodEffects
+  // can check boredom >= 80 (triggering "bored" mood on long absence).
   state.boredom = computeBoredom(state, now);
 
   const { greeting, isLongAbsence } = pickGreeting(state, now);
   if (isLongAbsence) Object.assign(state, applyMoodEffects(state, "idle"));
 
+  // Reset boredom: new session means user is present. The idle effect's
+  // boredom +10 above is intentionally discarded -- only its mood matters.
   state.boredom = 0;
   state.lastInteraction = now.toISOString();
   await saveState(state);

@@ -66,7 +66,7 @@ export function applyMoodEffects(state: NagatoroState, trigger: MoodTrigger): Na
 export function computeBoredom(state: NagatoroState, now: Date): number {
   if (!state.lastInteraction) return 0;
   const last = new Date(state.lastInteraction).getTime();
-  const minutesIdle = (now.getTime() - last) / 60000;
+  const minutesIdle = Math.max(0, (now.getTime() - last) / 60000);
   const boredomGain = Math.floor(minutesIdle / 15) * 10;
   return clamp(state.boredom + boredomGain, 0, 100);
 }
