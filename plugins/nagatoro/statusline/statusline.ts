@@ -11,7 +11,7 @@ export function resolveArtHeight(state: NagatoroState): ArtHeight {
   const envVal = parseInt(process.env.NAGATORO_ART_HEIGHT ?? "", 10);
   if (ART_HEIGHTS.includes(envVal as ArtHeight)) return envVal as ArtHeight;
   if (ART_HEIGHTS.includes(state.artHeight as ArtHeight)) return state.artHeight as ArtHeight;
-  return 12;
+  return 10;
 }
 
 async function readArt(mood: Mood, height: ArtHeight): Promise<string[]> {

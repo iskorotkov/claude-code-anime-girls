@@ -109,10 +109,10 @@ describe("resolveArtHeight", () => {
     else process.env.NAGATORO_ART_HEIGHT = originalEnv;
   });
 
-  it("returns 12 when no env and no state field", () => {
+  it("returns 10 when no env and no state field", () => {
     delete process.env.NAGATORO_ART_HEIGHT;
     const s = makeState();
-    expect(resolveArtHeight(s)).toBe(12);
+    expect(resolveArtHeight(s)).toBe(10);
   });
 
   it("returns state artHeight when valid", () => {
@@ -127,10 +127,10 @@ describe("resolveArtHeight", () => {
     expect(resolveArtHeight(s)).toBe(16);
   });
 
-  it("falls back to 12 for invalid env var", () => {
+  it("falls back to 10 for invalid env var", () => {
     process.env.NAGATORO_ART_HEIGHT = "7";
     const s = makeState();
-    expect(resolveArtHeight(s)).toBe(12);
+    expect(resolveArtHeight(s)).toBe(10);
   });
 });
 

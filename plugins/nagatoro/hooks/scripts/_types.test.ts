@@ -30,8 +30,8 @@ describe("DEFAULT_STATE", () => {
     expect(DEFAULT_STATE.lastInteraction).toBeNull();
   });
 
-  it("has default artHeight of 12", () => {
-    expect(DEFAULT_STATE.artHeight).toBe(12);
+  it("has default artHeight of 10", () => {
+    expect(DEFAULT_STATE.artHeight).toBe(10);
   });
 });
 

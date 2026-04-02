@@ -52,7 +52,7 @@ export const DEFAULT_STATE: NagatoroState = {
   moodDecayCounter: 0,
   consecutiveErrors: 0,
   interactionCount: 0,
-  artHeight: 12,
+  artHeight: 10,
 };
 
 export const MOOD_CONFIGS: Record<Mood, MoodConfig> = {
