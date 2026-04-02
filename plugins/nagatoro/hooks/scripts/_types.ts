@@ -10,6 +10,9 @@ export type Mood =
 
 export type MeterColor = "yellow" | "red" | "magenta" | "dim" | "blue" | "cyan";
 
+export const ART_HEIGHTS = [8, 10, 12, 14, 16] as const;
+export type ArtHeight = typeof ART_HEIGHTS[number];
+
 export interface NagatoroState {
   mood: Mood;
   senpaiMeter: number;
@@ -23,6 +26,7 @@ export interface NagatoroState {
   moodDecayCounter: number;
   consecutiveErrors: number;
   interactionCount: number;
+  artHeight: ArtHeight;
 }
 
 export interface MoodConfig {
@@ -48,6 +52,7 @@ export const DEFAULT_STATE: NagatoroState = {
   moodDecayCounter: 0,
   consecutiveErrors: 0,
   interactionCount: 0,
+  artHeight: 12,
 };
 
 export const MOOD_CONFIGS: Record<Mood, MoodConfig> = {

@@ -1,14 +1,21 @@
 import { styleText } from "node:util";
-import type { Mood, MoodConfig, MeterColor, NagatoroState } from "../hooks/scripts/_types";
-import { MOOD_CONFIGS } from "../hooks/scripts/_types";
+import type { Mood, MoodConfig, MeterColor, NagatoroState, ArtHeight } from "../hooks/scripts/_types";
+import { MOOD_CONFIGS, ART_HEIGHTS } from "../hooks/scripts/_types";
 import { computeBoredom } from "../hooks/scripts/_mood";
 import { POOLS, pickLine } from "../hooks/scripts/_dialogue";
 import { loadState } from "../hooks/scripts/_helpers";
 
 const ART_DIR = `${import.meta.dir}/../assets/art`;
 
-async function readArt(mood: Mood): Promise<string[]> {
-  const candidates = [`${mood}-10.ans`, "default-10.ans"];
+export function resolveArtHeight(state: NagatoroState): ArtHeight {
+  const envVal = parseInt(process.env.NAGATORO_ART_HEIGHT ?? "", 10);
+  if (ART_HEIGHTS.includes(envVal as ArtHeight)) return envVal as ArtHeight;
+  if (ART_HEIGHTS.includes(state.artHeight as ArtHeight)) return state.artHeight as ArtHeight;
+  return 12;
+}
+
+async function readArt(mood: Mood, height: ArtHeight): Promise<string[]> {
+  const candidates = [`${mood}-${height}.ans`, `${mood}-12.ans`];
   for (const f of candidates) {
     try { return (await Bun.file(`${ART_DIR}/${f}`).text()).split("\n"); } catch { /* art file optional */ }
   }
@@ -91,7 +98,8 @@ async function main() {
   const liveBoredom = computeBoredom(state, new Date());
   const info = buildInfoLines(state, cfg, quote, liveBoredom);
 
-  const artLines = await readArt(override?.artMood ?? state.mood);
+  const height = resolveArtHeight(state);
+  const artLines = await readArt(override?.artMood ?? state.mood, height);
   const output = artLines.length === 0 ? info.join("\n") : mergeColumns(artLines, info);
   await Bun.write(Bun.stdout, output + "\n");
 }

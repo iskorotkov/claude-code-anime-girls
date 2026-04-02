@@ -1,6 +1,7 @@
 import { describe, it, expect, spyOn, afterEach, beforeEach } from "bun:test";
-import { meterBar, ctxOverride } from "./statusline";
+import { meterBar, ctxOverride, resolveArtHeight } from "./statusline";
 import { MOOD_CONFIGS } from "../hooks/scripts/_types";
+import { makeState } from "../hooks/scripts/_test-utils";
 
 const stripAnsi = (s: string) => s.replace(/\x1b\[[0-9;]*m/g, "");
 const FILLED = "\u2588";
@@ -95,6 +96,41 @@ describe("ctxOverride", () => {
     const r = ctxOverride(60);
     expect(r).not.toBeNull();
     expect(r!.artMood).toBe("smug");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveArtHeight
+// ---------------------------------------------------------------------------
+describe("resolveArtHeight", () => {
+  const originalEnv = process.env.NAGATORO_ART_HEIGHT;
+  afterEach(() => {
+    if (originalEnv === undefined) delete process.env.NAGATORO_ART_HEIGHT;
+    else process.env.NAGATORO_ART_HEIGHT = originalEnv;
+  });
+
+  it("returns 12 when no env and no state field", () => {
+    delete process.env.NAGATORO_ART_HEIGHT;
+    const s = makeState();
+    expect(resolveArtHeight(s)).toBe(12);
+  });
+
+  it("returns state artHeight when valid", () => {
+    delete process.env.NAGATORO_ART_HEIGHT;
+    const s = makeState({ artHeight: 8 });
+    expect(resolveArtHeight(s)).toBe(8);
+  });
+
+  it("env var overrides state", () => {
+    process.env.NAGATORO_ART_HEIGHT = "16";
+    const s = makeState({ artHeight: 8 });
+    expect(resolveArtHeight(s)).toBe(16);
+  });
+
+  it("falls back to 12 for invalid env var", () => {
+    process.env.NAGATORO_ART_HEIGHT = "7";
+    const s = makeState();
+    expect(resolveArtHeight(s)).toBe(12);
   });
 });
 

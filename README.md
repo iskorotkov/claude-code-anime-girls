@@ -104,11 +104,24 @@ Rival AI names that trigger jealousy include ChatGPT, Copilot, Gemini, Cursor, C
 | `/pat` | Pat Nagatoro on the head |
 | `/compliment` | Compliment her (watch her malfunction) |
 | `/feed` | Feed her (she judges your taste) |
+| `/resize-pic` | Change ASCII art size (8, 10, 12, 14, 16) |
 | `/mood` | Check current mood and stats |
 | `/ask-advice` | Get coding advice wrapped in teasing |
 | `/ask-joke` | Hear a bad programming joke |
 | `/ask-wisdom` | Surprisingly insightful programming wisdom |
 | `/ask-compliment` | Fish for a compliment |
+
+### Art Size
+
+The status line art can be resized to 5 heights: 8, 10, 12, 14, or 16 lines.
+
+| Method | Example |
+|---|---|
+| Slash command | `/resize-pic 8` |
+| Environment variable | `NAGATORO_ART_HEIGHT=16` |
+| CLI | `bun hooks/scripts/_cli.ts --resize 12` |
+
+The default height is 12 lines.
 
 ## Development
 
@@ -123,10 +136,26 @@ To reset Nagatoro's mood and stats, delete the state file.
 
 ### Project Structure
 
-All hook scripts live in `plugins/nagatoro/hooks/scripts/` and share a common `runHook` boilerplate from `_helpers.ts`. The statusline script is at `plugins/nagatoro/statusline/statusline.ts`.
+All hook scripts live in `plugins/nagatoro/hooks/scripts/` and share a common `runHook` boilerplate from `_helpers.ts`. Skills mutate state via `_cli.ts`. The statusline script is at `plugins/nagatoro/statusline/statusline.ts`.
 
 ### Running Tests
 
 ```bash
 bun test
 ```
+
+### Generating Art
+
+Regenerate ANSI art assets from source images:
+
+```bash
+bun scripts/generate-all-art.ts ~/path/to/source-images
+```
+
+Convert a single image:
+
+```bash
+bun scripts/img2ascii.ts <input-image> <output.ans> [width] [height]
+```
+
+Requires `imagemagick` and `chafa` (`brew install imagemagick chafa`).

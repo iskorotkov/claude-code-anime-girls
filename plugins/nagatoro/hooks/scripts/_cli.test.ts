@@ -14,9 +14,9 @@ afterAll(async () => {
 });
 
 async function runCli(
-  flag: string,
+  ...args: string[]
 ): Promise<{ stdout: string; exitCode: number }> {
-  const proc = Bun.spawn(["bun", CLI, flag], {
+  const proc = Bun.spawn(["bun", CLI, ...args], {
     env: { ...process.env, CLAUDE_PLUGIN_DATA: tmpDir },
     stdout: "pipe",
     stderr: "pipe",
@@ -58,6 +58,30 @@ describe("_cli", () => {
 
   it("unknown flag exits with code 1", async () => {
     const { exitCode } = await runCli("--unknown");
+    expect(exitCode).toBe(1);
+  });
+
+  it("--resize 8 updates artHeight", async () => {
+    const { stdout, exitCode } = await runCli("--resize", "8");
+    expect(exitCode).toBe(0);
+    const state = JSON.parse(stdout);
+    expect(state.artHeight).toBe(8);
+  });
+
+  it("--resize 16 updates artHeight", async () => {
+    const { stdout, exitCode } = await runCli("--resize", "16");
+    expect(exitCode).toBe(0);
+    const state = JSON.parse(stdout);
+    expect(state.artHeight).toBe(16);
+  });
+
+  it("--resize 7 exits with error (invalid)", async () => {
+    const { exitCode } = await runCli("--resize", "7");
+    expect(exitCode).toBe(1);
+  });
+
+  it("--resize without argument exits with error", async () => {
+    const { exitCode } = await runCli("--resize");
     expect(exitCode).toBe(1);
   });
 });

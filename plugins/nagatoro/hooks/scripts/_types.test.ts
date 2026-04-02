@@ -8,8 +8,8 @@ import {
 import { ALL_MOODS } from "./_test-utils";
 
 describe("DEFAULT_STATE", () => {
-  it("has all 12 NagatoroState keys", () => {
-    expect(Object.keys(DEFAULT_STATE)).toHaveLength(12);
+  it("has all 13 NagatoroState keys", () => {
+    expect(Object.keys(DEFAULT_STATE)).toHaveLength(13);
   });
 
   it("has correct initial mood and meters", () => {
@@ -28,6 +28,10 @@ describe("DEFAULT_STATE", () => {
     expect(DEFAULT_STATE.interactionCount).toBe(0);
     expect(DEFAULT_STATE.jealousyTarget).toBeNull();
     expect(DEFAULT_STATE.lastInteraction).toBeNull();
+  });
+
+  it("has default artHeight of 12", () => {
+    expect(DEFAULT_STATE.artHeight).toBe(12);
   });
 });
 
