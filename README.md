@@ -65,6 +65,46 @@ Nagatoro's personality is injected into Claude's system context. She calls you "
 | `/ask-wisdom` | Surprisingly insightful programming wisdom |
 | `/ask-compliment` | Fish for a compliment |
 
+## Configuration
+
+After installing the plugin, configure Claude Code to use Nagatoro's status line and output style.
+
+### Activate Output Style
+
+The output style injects Nagatoro's tsundere personality into Claude's system context.
+
+**Option A** -- run `/config` inside a Claude Code session and select "Output style", then pick `Nagatoro`.
+
+**Option B** -- add to `.claude/settings.json` (project) or `~/.claude/settings.json` (global):
+
+```json
+{
+  "outputStyle": "nagatoro:Nagatoro"
+}
+```
+
+The format is `<plugin-name>:<style-name>`. The style file lives at `plugins/nagatoro/output-styles/nagatoro.md`.
+
+### Activate Status Line
+
+The status line shows Nagatoro's mood as ANSI art with live stats.
+
+**Option A** -- run `/statusline` inside a Claude Code session to configure it interactively.
+
+**Option B** -- add to `.claude/settings.json` (project) or `~/.claude/settings.json` (global):
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bun ~/.claude/plugins/marketplaces/anime-girls/plugins/nagatoro/statusline/statusline.ts",
+    "padding": 0
+  }
+}
+```
+
+The script receives session data as JSON on stdin and outputs ANSI art to stdout.
+
 ## State
 
 Plugin state is persisted to:
