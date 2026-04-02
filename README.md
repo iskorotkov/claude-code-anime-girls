@@ -4,27 +4,76 @@ Nagatoro-themed tsundere companion plugin for Claude Code. She teases Senpai whi
 
 ## Prerequisites
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
-- [Bun](https://bun.sh/) runtime (all hooks and statusline scripts run via `bun`)
+### Claude Code
+
+Install [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI:
+
+```bash
+brew install claude-code
+```
+
+Or follow the [official installation guide](https://docs.anthropic.com/en/docs/claude-code/getting-started).
+
+### Bun
+
+All hooks and statusline scripts run via [Bun](https://bun.sh/):
+
+```bash
+brew install oven-sh/bun/bun
+```
+
+Or install directly:
 
 ```bash
 curl -fsSL https://bun.sh/install | bash
 ```
 
-## Installation
+## Installation and Setup
 
-Add the marketplace and install the plugin:
+### 1. Add Marketplace and Install Plugin
 
 ```bash
 claude plugins add --from https://github.com/iskorotkov/claude-code-anime-girls
 claude plugins install nagatoro
 ```
 
+### 2. Activate Output Style
+
+The output style injects Nagatoro's tsundere personality into Claude's system context. She calls you "Senpai", teases your code, and wraps technical help in tsundere dialogue.
+
+**Option A** -- run `/config` inside a Claude Code session and select "Output style", then pick `Nagatoro`.
+
+**Option B** -- add to `.claude/settings.json` (project) or `~/.claude/settings.json` (global):
+
+```json
+{
+  "outputStyle": "nagatoro:Nagatoro"
+}
+```
+
+### 3. Activate Status Line
+
+The status line displays Nagatoro's current mood as ANSI art alongside live stats.
+
+**Option A** -- run `/statusline` inside a Claude Code session to configure it interactively.
+
+**Option B** -- add to `.claude/settings.json` (project) or `~/.claude/settings.json` (global):
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bun ~/.claude/plugins/marketplaces/anime-girls/plugins/nagatoro/statusline/statusline.ts",
+    "padding": 0
+  }
+}
+```
+
+The script receives session data as JSON on stdin and outputs ANSI art to stdout.
+
 ## Features
 
-### Status Line
-
-A persistent status line displays Nagatoro's current mood as ANSI art alongside live stats:
+### Status Line Stats
 
 - Senpai meter (affection level)
 - Respect meter (rises on task success, drops on tool failures)
@@ -48,10 +97,6 @@ Nagatoro reacts to your coding session in real time:
 
 Rival AI names that trigger jealousy include ChatGPT, Copilot, Gemini, Cursor, Codex, and others.
 
-### Output Style
-
-Nagatoro's personality is injected into Claude's system context. She calls you "Senpai", teases your code, and wraps technical help in tsundere dialogue.
-
 ### Slash Commands
 
 | Command | Effect |
@@ -65,47 +110,9 @@ Nagatoro's personality is injected into Claude's system context. She calls you "
 | `/ask-wisdom` | Surprisingly insightful programming wisdom |
 | `/ask-compliment` | Fish for a compliment |
 
-## Configuration
+## Development
 
-After installing the plugin, configure Claude Code to use Nagatoro's status line and output style.
-
-### Activate Output Style
-
-The output style injects Nagatoro's tsundere personality into Claude's system context.
-
-**Option A** -- run `/config` inside a Claude Code session and select "Output style", then pick `Nagatoro`.
-
-**Option B** -- add to `.claude/settings.json` (project) or `~/.claude/settings.json` (global):
-
-```json
-{
-  "outputStyle": "nagatoro:Nagatoro"
-}
-```
-
-The format is `<plugin-name>:<style-name>`. The style file lives at `plugins/nagatoro/output-styles/nagatoro.md`.
-
-### Activate Status Line
-
-The status line shows Nagatoro's mood as ANSI art with live stats.
-
-**Option A** -- run `/statusline` inside a Claude Code session to configure it interactively.
-
-**Option B** -- add to `.claude/settings.json` (project) or `~/.claude/settings.json` (global):
-
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "bun ~/.claude/plugins/marketplaces/anime-girls/plugins/nagatoro/statusline/statusline.ts",
-    "padding": 0
-  }
-}
-```
-
-The script receives session data as JSON on stdin and outputs ANSI art to stdout.
-
-## State
+### State
 
 Plugin state is persisted to:
 
@@ -114,10 +121,12 @@ Plugin state is persisted to:
 
 To reset Nagatoro's mood and stats, delete the state file.
 
-## Development
+### Project Structure
+
+All hook scripts live in `plugins/nagatoro/hooks/scripts/` and share a common `runHook` boilerplate from `_helpers.ts`. The statusline script is at `plugins/nagatoro/statusline/statusline.ts`.
+
+### Running Tests
 
 ```bash
 bun test
 ```
-
-All hook scripts live in `plugins/nagatoro/hooks/scripts/` and share a common `runHook` boilerplate from `_helpers.ts`. The statusline script is at `plugins/nagatoro/statusline/statusline.ts`.
