@@ -1,0 +1,107 @@
+import { mkdtemp, rm, unlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { describe, it, expect, beforeEach, afterAll } from "bun:test";
+import { DEFAULT_STATE, type NagatoroState } from "./_types";
+import { makeState } from "./_test-utils";
+
+const testDir = await mkdtemp(join(tmpdir(), "nagatoro-test-"));
+process.env.CLAUDE_PLUGIN_DATA = testDir;
+
+const { clamp, loadState, saveState } = await import("./_helpers");
+const statePath = join(testDir, "state.json");
+
+beforeEach(async () => {
+  try { await unlink(statePath); } catch {}
+});
+
+afterAll(async () => {
+  await rm(testDir, { recursive: true });
+});
+
+describe("clamp", () => {
+  it("returns value when within bounds", () => {
+    expect(clamp(5, 0, 10)).toBe(5);
+  });
+
+  it("clamps to min when below", () => {
+    expect(clamp(-5, 0, 10)).toBe(0);
+  });
+
+  it("clamps to max when above", () => {
+    expect(clamp(15, 0, 10)).toBe(10);
+  });
+
+  it("returns min when value equals min", () => {
+    expect(clamp(0, 0, 10)).toBe(0);
+  });
+
+  it("returns max when value equals max", () => {
+    expect(clamp(10, 0, 10)).toBe(10);
+  });
+});
+
+describe("loadState", () => {
+  it("returns DEFAULT_STATE when file is missing", async () => {
+    const state = await loadState();
+    expect(state).toEqual(DEFAULT_STATE);
+  });
+
+  it("returns full state from valid JSON file", async () => {
+    const custom = makeState({
+      mood: "happy",
+      senpaiMeter: 80,
+      respect: 90,
+      totalPats: 42,
+    });
+    await Bun.write(statePath, JSON.stringify(custom));
+    const state = await loadState();
+    expect(state).toEqual(custom);
+  });
+
+  it("fills missing fields from DEFAULT_STATE for partial JSON", async () => {
+    await Bun.write(statePath, JSON.stringify({ mood: "happy" }));
+    const state = await loadState();
+    expect(state.mood).toBe("happy");
+    expect(state.senpaiMeter).toBe(DEFAULT_STATE.senpaiMeter);
+    expect(state.respect).toBe(DEFAULT_STATE.respect);
+    expect(state.boredom).toBe(DEFAULT_STATE.boredom);
+  });
+
+  it("returns DEFAULT_STATE for corrupt JSON", async () => {
+    await Bun.write(statePath, "not json");
+    const state = await loadState();
+    expect(state).toEqual(DEFAULT_STATE);
+  });
+});
+
+describe("saveState", () => {
+  it("round-trips: save then load returns same state", async () => {
+    const custom = makeState({
+      mood: "jealous",
+      senpaiMeter: 10,
+      totalInsults: 7,
+      boredom: 60,
+    });
+    await saveState(custom);
+    const loaded = await loadState();
+    expect(loaded).toEqual(custom);
+  });
+
+  it("creates directory when missing", async () => {
+    await rm(testDir, { recursive: true });
+    const custom = makeState({ mood: "serious", respect: 99 });
+    await saveState(custom);
+    const loaded = await loadState();
+    expect(loaded).toEqual(custom);
+  });
+
+  it("overwrites existing state", async () => {
+    const first = makeState({ mood: "smug", respect: 10 });
+    const second = makeState({ mood: "happy", respect: 99 });
+    await saveState(first);
+    await saveState(second);
+    const loaded = await loadState();
+    expect(loaded).toEqual(second);
+  });
+});

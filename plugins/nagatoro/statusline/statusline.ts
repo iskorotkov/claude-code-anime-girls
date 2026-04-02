@@ -16,7 +16,7 @@ const QUOTES: Record<Mood, string[]> = {
   laughing:  ["AHAHA Senpai you're hopeless!", "Pfft-- seriously?!", "LOL what was THAT?!"],
 };
 
-function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+export function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
 
 async function readState(): Promise<NagatoroState> {
   const paths: string[] = [];
@@ -37,7 +37,7 @@ async function readArt(mood: Mood): Promise<string[]> {
   return [];
 }
 
-function meterBar(value: number, color: string, jealous: boolean): string {
+export function meterBar(value: number, color: string, jealous: boolean): string {
   const filled = Math.round(value / 10);
   const empty = 10 - filled;
   const ch = jealous ? "!" : "\u2588";
@@ -64,7 +64,7 @@ const CTX_WARNINGS: { min: number; artMood: Mood; quotes: string[] }[] = [
   ]},
 ];
 
-function ctxOverride(pct: number): { artMood: Mood; cfg: MoodConfig; quote: string } | null {
+export function ctxOverride(pct: number): { artMood: Mood; cfg: MoodConfig; quote: string } | null {
   for (const w of CTX_WARNINGS) {
     if (pct >= w.min) return { artMood: w.artMood, cfg: MOOD_CONFIGS[w.artMood], quote: `${pick(w.quotes)} [ctx:${Math.round(pct)}%]` };
   }
