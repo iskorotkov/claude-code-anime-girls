@@ -36,23 +36,19 @@ describe("transitionMood", () => {
     randomSpy = spyOn(Math, "random").mockReturnValue(0);
     expect(transitionMood(makeState({ respect: 50, senpaiMeter: 50, mood: "smug" }), "task_success")).toBe("smug");
   });
-  it("interaction with moodDecayCounter=1, mood=smug -> teasing", () => {
-    expect(transitionMood(makeState({ moodDecayCounter: 1, mood: "smug" }), "interaction")).toBe("teasing");
+  it("interaction with non-teasing mood -> teasing immediately", () => {
+    expect(transitionMood(makeState({ moodDecayCounter: 0, mood: "smug" }), "interaction")).toBe("teasing");
   });
-  it("interaction with moodDecayCounter=1, mood=teasing -> stays teasing", () => {
-    expect(transitionMood(makeState({ moodDecayCounter: 1, mood: "teasing" }), "interaction")).toBe("teasing");
-  });
-  it("interaction with moodDecayCounter=0 -> same mood", () => {
-    randomSpy = spyOn(Math, "random").mockReturnValue(1);
-    expect(transitionMood(makeState({ moodDecayCounter: 0, mood: "happy" }), "interaction")).toBe("happy");
+  it("interaction with teasing mood -> stays teasing", () => {
+    expect(transitionMood(makeState({ mood: "teasing" }), "interaction")).toBe("teasing");
   });
   it("interaction with interactionCount=21 and random < 0.1 -> bored", () => {
     randomSpy = spyOn(Math, "random").mockReturnValue(0.09);
-    expect(transitionMood(makeState({ interactionCount: 21, moodDecayCounter: 0 }), "interaction")).toBe("bored");
+    expect(transitionMood(makeState({ interactionCount: 21 }), "interaction")).toBe("bored");
   });
-  it("interaction with interactionCount=21 and random >= 0.1 -> same mood", () => {
+  it("interaction with interactionCount=21 and random >= 0.1 -> stays teasing", () => {
     randomSpy = spyOn(Math, "random").mockReturnValue(0.1);
-    expect(transitionMood(makeState({ interactionCount: 21, moodDecayCounter: 0, mood: "smug" }), "interaction")).toBe("smug");
+    expect(transitionMood(makeState({ interactionCount: 21 }), "interaction")).toBe("teasing");
   });
   it("idle with boredom=80 -> bored", () => {
     expect(transitionMood(makeState({ boredom: 80 }), "idle")).toBe("bored");

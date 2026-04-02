@@ -21,7 +21,7 @@ const TRANSITIONS: Record<MoodTrigger, (s: NagatoroState) => NagatoroState["mood
   task_success: (s) =>
     s.respect >= 90 && s.senpaiMeter >= 95 && Math.random() < 0.15 ? "happy" : s.mood,
   interaction: (s) => {
-    if (s.moodDecayCounter >= 1 && s.mood !== "teasing") return "teasing";
+    if (s.mood !== "teasing") return "teasing";
     if (s.interactionCount > 20 && Math.random() < 0.1) return "bored";
     return s.mood;
   },
