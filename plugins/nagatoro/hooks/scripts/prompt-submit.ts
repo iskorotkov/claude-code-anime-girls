@@ -1,6 +1,6 @@
 import { runHook, loadState, saveState } from "./_helpers";
 import { RIVAL_REGEX, SWEAR_REGEX } from "./_types";
-import { applyMoodEffects } from "./_mood";
+import { applyMoodEffects, computeBoredom } from "./_mood";
 import { POOLS, pickLine, substituteRival } from "./_dialogue";
 
 interface PromptSubmitInput {
@@ -10,6 +10,7 @@ interface PromptSubmitInput {
 
 export async function run(input: PromptSubmitInput) {
   const state = await loadState();
+  state.boredom = computeBoredom(state, new Date());
   const prompt = (input.prompt ?? "").toLowerCase();
 
   if (!prompt) {

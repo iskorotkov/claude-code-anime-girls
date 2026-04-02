@@ -1,6 +1,7 @@
 import { styleText } from "node:util";
 import type { Mood, NagatoroState, MoodConfig } from "../hooks/scripts/_types";
 import { DEFAULT_STATE, MOOD_CONFIGS } from "../hooks/scripts/_types";
+import { computeBoredom } from "../hooks/scripts/_mood";
 
 const ART_DIR = `${import.meta.dir}/../assets/art`;
 
@@ -85,7 +86,8 @@ async function main() {
   const artMood = override?.artMood ?? state.mood;
   const artLines = await readArt(artMood);
   const respectBar = meterBar(state.respect, "cyan", false);
-  const boredomBar = meterBar(state.boredom, "dim", false);
+  const liveBoredom = computeBoredom(state, new Date());
+  const boredomBar = meterBar(liveBoredom, "dim", false);
   const info = [
     `${cfg.emoji} ${cfg.label}`,
     ``,
@@ -93,7 +95,7 @@ async function main() {
     ``,
     `Senpai  ${bar} ${state.senpaiMeter}%`,
     `Respect ${respectBar} ${state.respect}%`,
-    `Boredom ${boredomBar} ${state.boredom}%`,
+    `Boredom ${boredomBar} ${liveBoredom}%`,
     ``,
     `Pats: ${state.totalPats}  Swears: ${state.totalInsults}  Genuine: ${state.genuineMoments}`,
     state.jealousyTarget ? `Rival: ${state.jealousyTarget}` : ``,

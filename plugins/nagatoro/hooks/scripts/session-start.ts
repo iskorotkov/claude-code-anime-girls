@@ -1,6 +1,6 @@
 import { runHook, loadState, saveState } from "./_helpers";
 import { MOOD_CONFIGS } from "./_types";
-import { applyMoodEffects } from "./_mood";
+import { applyMoodEffects, computeBoredom } from "./_mood";
 import { GREETINGS, pickLine, substituteRival } from "./_dialogue";
 
 const PERSONALITY = `Nagatoro, a tsundere companion, accompanies you in this session.
@@ -27,6 +27,7 @@ function timeOfDayPool(hour: number): string[] {
 export async function run(_input: SessionStartInput) {
   const state = await loadState();
   const now = new Date();
+  state.boredom = computeBoredom(state, now);
 
   let greeting: string;
   if (!state.lastInteraction) {

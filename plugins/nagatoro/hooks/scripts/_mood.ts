@@ -76,6 +76,7 @@ export function applyMoodEffects(
     case "interaction":
       next.consecutiveErrors = 0;
       next.interactionCount++;
+      next.boredom = c(next.boredom - 10, 0, 100);
       break;
     case "idle":
       next.boredom = c(next.boredom + 10, 0, 100);
