@@ -39,6 +39,10 @@ describe("clamp", () => {
   it("returns max when value equals max", () => {
     expect(clamp(10, 0, 10)).toBe(10);
   });
+
+  it("returns NaN for NaN input", () => {
+    expect(clamp(NaN, 0, 100)).toBeNaN();
+  });
 });
 
 describe("loadState", () => {
@@ -72,6 +76,32 @@ describe("loadState", () => {
     await Bun.write(statePath, "not json");
     const state = await loadState();
     expect(state).toEqual(DEFAULT_STATE);
+  });
+});
+
+describe("loadState - corrupt values", () => {
+  it("clamps out-of-range meter to 100", async () => {
+    await Bun.write(statePath, JSON.stringify({ senpaiMeter: 999 }));
+    const state = await loadState();
+    expect(state.senpaiMeter).toBe(100);
+  });
+
+  it("clamps negative meter to 0", async () => {
+    await Bun.write(statePath, JSON.stringify({ senpaiMeter: -50 }));
+    const state = await loadState();
+    expect(state.senpaiMeter).toBe(0);
+  });
+
+  it("falls back to default for non-numeric meter", async () => {
+    await Bun.write(statePath, JSON.stringify({ senpaiMeter: "hello" }));
+    const state = await loadState();
+    expect(state.senpaiMeter).toBe(50);
+  });
+
+  it("falls back to default for invalid mood", async () => {
+    await Bun.write(statePath, JSON.stringify({ mood: "invalid" }));
+    const state = await loadState();
+    expect(state.mood).toBe("teasing");
   });
 });
 
