@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll } from "bun:test";
+import { describe, it, expect, beforeAll, beforeEach, afterAll } from "bun:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { DEFAULT_STATE } from "./_types";
 
 const CLI = join(import.meta.dir, "_cli.ts");
 
@@ -27,6 +28,11 @@ async function runCli(
 }
 
 describe("_cli", () => {
+  beforeEach(async () => {
+    const statePath = join(tmpDir, "state.json");
+    await Bun.write(statePath, JSON.stringify(DEFAULT_STATE));
+  });
+
   it("--read returns valid JSON state", async () => {
     const { stdout, exitCode } = await runCli("--read");
     expect(exitCode).toBe(0);
@@ -54,6 +60,20 @@ describe("_cli", () => {
     expect(exitCode).toBe(0);
     const state = JSON.parse(stdout);
     expect(state).toHaveProperty("senpaiMeter");
+  });
+
+  it("--pat increments senpaiMeter and totalPats", async () => {
+    const { stdout } = await runCli("--pat");
+    const state = JSON.parse(stdout);
+    expect(state.senpaiMeter).toBe(52);
+    expect(state.totalPats).toBe(1);
+  });
+
+  it("--feed increments senpaiMeter from default", async () => {
+    const { stdout } = await runCli("--feed");
+    const state = JSON.parse(stdout);
+    expect(state.senpaiMeter).toBe(51);
+    expect(state.boredom).toBe(0);
   });
 
   it("unknown flag exits with code 1", async () => {
