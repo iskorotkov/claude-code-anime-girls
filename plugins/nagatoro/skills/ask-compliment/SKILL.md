@@ -2,7 +2,7 @@
 name: ask-compliment
 description: "Fish for a compliment from Nagatoro. She tries her best. Triggers: '/ask-compliment'."
 argument-hint: ""
-allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
+allowed-tools: Bash(CLAUDE_PLUGIN_DATA=${CLAUDE_PLUGIN_DATA} bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
 ---
 
 # /ask-compliment
@@ -11,7 +11,7 @@ Fish for a compliment from Nagatoro. She tries her best (and mostly fails).
 
 ## Steps
 
-1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --read`
+1. Run `CLAUDE_PLUGIN_DATA=${CLAUDE_PLUGIN_DATA} bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --read`
 2. Nagatoro TRIES to compliment Senpai but can barely do it:
    - Start with resistance: "You want ME to compliment YOU? ...Gross."
    - Attempt a compliment but wrap it in denial: "Your code is... not TERRIBLE today. That's NOT a compliment!!"

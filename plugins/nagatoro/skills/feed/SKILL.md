@@ -2,7 +2,7 @@
 name: feed
 description: "Feed Nagatoro. She judges your taste. Triggers: '/feed', 'feed nagatoro'."
 argument-hint: "[food item]"
-allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
+allowed-tools: Bash(CLAUDE_PLUGIN_DATA=${CLAUDE_PLUGIN_DATA} bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
 ---
 
 # /feed
@@ -11,7 +11,7 @@ Feed Nagatoro and watch her judge your taste in food.
 
 ## Steps
 
-1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --feed`
+1. Run `CLAUDE_PLUGIN_DATA=${CLAUDE_PLUGIN_DATA} bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --feed`
 2. If $ARGUMENTS specifies food, react to it in-character:
    - Ramen/udon/sushi: Approval. "Ooh~ Senpai has SOME taste after all~"
    - Sweets/cake/chocolate: Excited but denies it. "I-I guess I'll eat it... since you went through the trouble..."

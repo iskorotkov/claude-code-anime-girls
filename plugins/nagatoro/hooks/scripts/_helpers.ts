@@ -1,10 +1,12 @@
 import { mkdir } from "node:fs/promises";
 import { ART_HEIGHTS, DEFAULT_STATE, MOOD_CONFIGS, type ArtHeight, type Mood, type NagatoroState } from "./_types";
 
+const PLUGIN_DATA_DIR = "nagatoro-anime-girls";
+
 function getStatePath(): string {
   const pluginData = process.env.CLAUDE_PLUGIN_DATA;
   if (pluginData) return `${pluginData}/state.json`;
-  return `${process.env.HOME}/.claude/nagatoro-state.json`;
+  return `${process.env.HOME}/.claude/plugins/data/${PLUGIN_DATA_DIR}/state.json`;
 }
 
 export async function runHook<I, O>(

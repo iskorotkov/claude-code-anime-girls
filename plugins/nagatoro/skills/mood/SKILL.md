@@ -2,7 +2,7 @@
 name: mood
 description: "Check Nagatoro's current mood, senpai meter, and stats. Read-only. Triggers: '/mood', 'how is nagatoro', 'nagatoro status'."
 argument-hint: ""
-allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
+allowed-tools: Bash(CLAUDE_PLUGIN_DATA=${CLAUDE_PLUGIN_DATA} bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
 ---
 
 # /mood
@@ -11,7 +11,7 @@ Check on Nagatoro's current state. Read-only, does not mutate anything.
 
 ## Steps
 
-1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --read` to get current state.
+1. Run `CLAUDE_PLUGIN_DATA=${CLAUDE_PLUGIN_DATA} bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --read` to get current state.
 2. Parse the JSON output. Extract: `mood`, `senpaiMeter`, `respect`, `boredom`, `totalPats`, `totalSwears`, `genuineMoments`, `jealousyTarget`.
 3. Display the status card.
 4. After the card, add a mood-appropriate in-character comment from Nagatoro.
