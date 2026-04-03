@@ -1,5 +1,7 @@
 # claude-code-anime-girls
 
+![Screenshot](./assets/screenshot.png)
+
 Nagatoro-themed tsundere companion plugin for Claude Code. She teases Senpai while they code.
 
 ## Prerequisites
