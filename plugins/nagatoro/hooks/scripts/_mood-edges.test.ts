@@ -39,13 +39,16 @@ describe("transition boundaries", () => {
   it("consecutiveErrors=3 still gives serious", () => {
     expect(transitionMood(makeState({ consecutiveErrors: 3 }), "tool_failure")).toBe("serious");
   });
-  it("task_success: respect=89 blocks happy", () => {
+  it("task_success: respect=74 blocks happy", () => {
     randomSpy = spyOn(Math, "random").mockReturnValue(0);
-    expect(transitionMood(makeState({ respect: 89, senpaiMeter: 95, mood: "smug" }), "task_success")).toBe("smug");
+    expect(transitionMood(makeState({ respect: 74, senpaiMeter: 80, mood: "smug" }), "task_success")).toBe("smug");
   });
-  it("task_success: senpaiMeter=94 blocks happy", () => {
+  it("task_success: senpaiMeter=79 blocks happy", () => {
     randomSpy = spyOn(Math, "random").mockReturnValue(0);
-    expect(transitionMood(makeState({ respect: 90, senpaiMeter: 94, mood: "smug" }), "task_success")).toBe("smug");
+    expect(transitionMood(makeState({ respect: 75, senpaiMeter: 79, mood: "smug" }), "task_success")).toBe("smug");
+  });
+  it("interaction: moodLockedFor=1 preserves non-teasing mood", () => {
+    expect(transitionMood(makeState({ mood: "flustered", moodLockedFor: 1 }), "interaction")).toBe("flustered");
   });
 });
 

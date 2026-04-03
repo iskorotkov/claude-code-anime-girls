@@ -8,8 +8,8 @@ import {
 import { ALL_MOODS } from "./_test-utils";
 
 describe("DEFAULT_STATE", () => {
-  it("has all 14 NagatoroState keys", () => {
-    expect(Object.keys(DEFAULT_STATE)).toHaveLength(14);
+  it("has all 15 NagatoroState keys", () => {
+    expect(Object.keys(DEFAULT_STATE)).toHaveLength(15);
   });
 
   it("has correct initial mood and meters", () => {
@@ -26,6 +26,7 @@ describe("DEFAULT_STATE", () => {
     expect(DEFAULT_STATE.moodDecayCounter).toBe(0);
     expect(DEFAULT_STATE.consecutiveErrors).toBe(0);
     expect(DEFAULT_STATE.interactionCount).toBe(0);
+    expect(DEFAULT_STATE.moodLockedFor).toBe(0);
     expect(DEFAULT_STATE.jealousyTarget).toBeNull();
     expect(DEFAULT_STATE.lastInteraction).toBeNull();
   });
@@ -62,12 +63,18 @@ describe("RIVAL_REGEX", () => {
     expect(RIVAL_REGEX.test("Gemini")).toBe(true);
   });
 
-  it("matches rivals as substrings", () => {
+  it("matches rivals within sentences", () => {
     expect(RIVAL_REGEX.test("I used chatgpt")).toBe(true);
   });
 
   it("does not match unrelated text", () => {
     expect(RIVAL_REGEX.test("hello world")).toBe(false);
+  });
+
+  it("does not false-positive on words containing rival names", () => {
+    expect(RIVAL_REGEX.test("bombardment")).toBe(false);
+    expect(RIVAL_REGEX.test("cursory")).toBe(false);
+    expect(RIVAL_REGEX.test("precursor")).toBe(false);
   });
 });
 
@@ -77,8 +84,22 @@ describe("SWEAR_REGEX", () => {
     expect(SWEAR_REGEX.test("FUCK")).toBe(true);
   });
 
-  it("matches substrings containing swear fragments", () => {
-    expect(SWEAR_REGEX.test("class")).toBe(true);
+  it("does not false-positive on words containing swear fragments", () => {
+    expect(SWEAR_REGEX.test("class")).toBe(false);
+    expect(SWEAR_REGEX.test("shell")).toBe(false);
+    expect(SWEAR_REGEX.test("password")).toBe(false);
+    expect(SWEAR_REGEX.test("assign")).toBe(false);
+    expect(SWEAR_REGEX.test("classic")).toBe(false);
+    expect(SWEAR_REGEX.test("grassy")).toBe(false);
+  });
+
+  it("matches newly added swear words", () => {
+    expect(SWEAR_REGEX.test("stfu")).toBe(true);
+    expect(SWEAR_REGEX.test("ffs")).toBe(true);
+    expect(SWEAR_REGEX.test("omfg")).toBe(true);
+    expect(SWEAR_REGEX.test("goddamn")).toBe(true);
+    expect(SWEAR_REGEX.test("asshole")).toBe(true);
+    expect(SWEAR_REGEX.test("shitty")).toBe(true);
   });
 
   it("does not match unrelated text", () => {

@@ -74,15 +74,40 @@ describe("prompt-submit hook", () => {
     });
   });
 
-  describe("priority", () => {
-    it("rival takes priority over swear", async () => {
+  describe("dual detection", () => {
+    it("detects both swear and rival in same message", async () => {
       const result = await run({
         hook_event_name: "UserPromptSubmit",
         prompt: "chatgpt is shit",
       });
       const s = savedState(mockSaveState);
+      expect(s.totalInsults).toBe(1);
       expect(s.mood).toBe("jealous");
+      expect(s.senpaiMeter).toBeLessThan(50);
       expect(result).toHaveProperty("hookSpecificOutput");
+    });
+  });
+
+  describe("false-positive guards", () => {
+    it("does not trigger swear on 'add a class'", async () => {
+      const result = await run({
+        hook_event_name: "UserPromptSubmit",
+        prompt: "add a class",
+      });
+      const s = savedState(mockSaveState);
+      expect(s.mood).toBe("teasing");
+      expect(s.totalInsults).toBe(0);
+      expect(result).toBeUndefined();
+    });
+
+    it("does not trigger rival on 'bombardment of requests'", async () => {
+      const result = await run({
+        hook_event_name: "UserPromptSubmit",
+        prompt: "bombardment of requests",
+      });
+      const s = savedState(mockSaveState);
+      expect(s.mood).toBe("teasing");
+      expect(result).toBeUndefined();
     });
   });
 

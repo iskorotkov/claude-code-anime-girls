@@ -27,6 +27,7 @@ export interface NagatoroState {
   moodDecayCounter: number;
   consecutiveErrors: number;
   interactionCount: number;
+  moodLockedFor: number;
   artHeight: ArtHeight;
 }
 
@@ -54,6 +55,7 @@ export const DEFAULT_STATE: NagatoroState = {
   moodDecayCounter: 0,
   consecutiveErrors: 0,
   interactionCount: 0,
+  moodLockedFor: 0,
   artHeight: 10,
 };
 
@@ -77,9 +79,10 @@ export const RIVAL_NAMES = [
 ];
 
 export const SWEAR_WORDS = [
-  "damn", "shit", "fuck", "crap", "hell",
-  "wtf", "dammit", "ass", "bastard", "bullshit",
+  "damn", "shit", "shitty", "fuck", "crap", "hell",
+  "wtf", "wth", "dammit", "ass", "asshole", "bastard", "bullshit",
+  "stfu", "ffs", "omfg", "fml", "jfc", "goddamn", "goddammit",
 ];
 
-export const RIVAL_REGEX = new RegExp(`(${RIVAL_NAMES.join("|")})`, "i");
-export const SWEAR_REGEX = new RegExp(`(${SWEAR_WORDS.join("|")})`, "i");
+export const RIVAL_REGEX = new RegExp(`\\b(${RIVAL_NAMES.join("|")})\\b`, "i");
+export const SWEAR_REGEX = new RegExp(`\\b(${SWEAR_WORDS.join("|")})\\b`, "i");

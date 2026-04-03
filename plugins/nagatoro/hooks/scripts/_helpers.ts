@@ -1,11 +1,11 @@
 import { mkdir } from "node:fs/promises";
 import { ART_HEIGHTS, DEFAULT_STATE, MOOD_CONFIGS, type ArtHeight, type Mood, type NagatoroState } from "./_types";
 
-const STATE_PATH = (() => {
+function getStatePath(): string {
   const pluginData = process.env.CLAUDE_PLUGIN_DATA;
   if (pluginData) return `${pluginData}/state.json`;
   return `${process.env.HOME}/.claude/nagatoro-state.json`;
-})();
+}
 
 export async function runHook<I, O>(
   name: string,
@@ -23,7 +23,7 @@ export async function runHook<I, O>(
 
 export async function loadState(): Promise<NagatoroState> {
   try {
-    const raw = await Bun.file(STATE_PATH).text();
+    const raw = await Bun.file(getStatePath()).text();
     return sanitizeState({ ...DEFAULT_STATE, ...JSON.parse(raw) });
   } catch {
     return { ...DEFAULT_STATE };
@@ -32,11 +32,11 @@ export async function loadState(): Promise<NagatoroState> {
 
 export async function saveState(state: NagatoroState): Promise<void> {
   try {
-    await Bun.write(STATE_PATH, JSON.stringify(state));
+    await Bun.write(getStatePath(), JSON.stringify(state));
   } catch {
-    const dir = STATE_PATH.substring(0, STATE_PATH.lastIndexOf("/"));
+    const dir = getStatePath().substring(0, getStatePath().lastIndexOf("/"));
     await mkdir(dir, { recursive: true });
-    await Bun.write(STATE_PATH, JSON.stringify(state));
+    await Bun.write(getStatePath(), JSON.stringify(state));
   }
 }
 
@@ -71,6 +71,7 @@ export function sanitizeState(raw: Record<string, unknown>): NagatoroState {
     moodDecayCounter: sanitizeCounter(raw.moodDecayCounter, DEFAULT_STATE.moodDecayCounter),
     consecutiveErrors: sanitizeCounter(raw.consecutiveErrors, DEFAULT_STATE.consecutiveErrors),
     interactionCount: sanitizeCounter(raw.interactionCount, DEFAULT_STATE.interactionCount),
+    moodLockedFor: sanitizeCounter(raw.moodLockedFor, DEFAULT_STATE.moodLockedFor),
     artHeight: ART_HEIGHTS.includes(raw.artHeight as any) ? raw.artHeight as ArtHeight : DEFAULT_STATE.artHeight,
   };
 }

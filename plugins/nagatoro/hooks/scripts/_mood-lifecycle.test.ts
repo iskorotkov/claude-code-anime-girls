@@ -114,10 +114,10 @@ describe("counter isolation", () => {
   });
 
   it("task_success when happy increments genuineMoments only", () => {
-    randomSpy = spyOn(Math, "random").mockReturnValue(0.14);
+    randomSpy = spyOn(Math, "random").mockReturnValue(0.24);
     const s = makeState({
       totalPats: 5, totalInsults: 3, genuineMoments: 0,
-      respect: 90, senpaiMeter: 95,
+      respect: 75, senpaiMeter: 80,
     });
     const next = applyMoodEffects(s, "task_success");
     expect(next.totalPats).toBe(5);
@@ -128,20 +128,46 @@ describe("counter isolation", () => {
 
 describe("genuineMoments pipeline", () => {
   it("increments when task_success transitions to happy", () => {
-    randomSpy = spyOn(Math, "random").mockReturnValue(0.14);
-    const s = makeState({ respect: 90, senpaiMeter: 95, genuineMoments: 0 });
+    randomSpy = spyOn(Math, "random").mockReturnValue(0.24);
+    const s = makeState({ respect: 75, senpaiMeter: 80, genuineMoments: 0 });
     const next = applyMoodEffects(s, "task_success");
     expect(next.mood).toBe("happy");
     expect(next.genuineMoments).toBe(1);
-    expect(next.respect).toBe(92);
+    expect(next.respect).toBe(77);
   });
 
   it("does not increment when random blocks happy transition", () => {
-    randomSpy = spyOn(Math, "random").mockReturnValue(0.15);
-    const s = makeState({ respect: 90, senpaiMeter: 95, genuineMoments: 0, mood: "teasing" });
+    randomSpy = spyOn(Math, "random").mockReturnValue(0.25);
+    const s = makeState({ respect: 75, senpaiMeter: 80, genuineMoments: 0, mood: "teasing" });
     const next = applyMoodEffects(s, "task_success");
     expect(next.mood).toBe("teasing");
     expect(next.genuineMoments).toBe(0);
-    expect(next.respect).toBe(92); // respect still increases regardless
+    expect(next.respect).toBe(77); // respect still increases regardless
+  });
+});
+
+describe("happy persistence lifecycle", () => {
+  it("happy mood persists one interaction then decays", () => {
+    randomSpy = spyOn(Math, "random").mockReturnValue(0.24);
+    let s = applyMoodEffects(makeState({ respect: 75, senpaiMeter: 80 }), "task_success");
+    expect(s.mood).toBe("happy");
+    expect(s.moodLockedFor).toBe(1);
+    randomSpy.mockRestore();
+    s = applyMoodEffects(s, "interaction"); // locked: stays happy, lock decrements
+    expect(s.mood).toBe("happy");
+    expect(s.moodLockedFor).toBe(0);
+    s = applyMoodEffects(s, "interaction"); // unlocked: decays to teasing
+    expect(s.mood).toBe("teasing");
+  });
+
+  it("rival_detected breaks lock and transitions to jealous", () => {
+    randomSpy = spyOn(Math, "random").mockReturnValue(0.24);
+    let s = applyMoodEffects(makeState({ respect: 75, senpaiMeter: 80 }), "task_success");
+    expect(s.mood).toBe("happy");
+    expect(s.moodLockedFor).toBe(1);
+    randomSpy.mockRestore();
+    s = applyMoodEffects(s, "rival_detected");
+    expect(s.mood).toBe("jealous");
+    expect(s.moodLockedFor).toBe(0);
   });
 });
