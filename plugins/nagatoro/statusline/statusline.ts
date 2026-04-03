@@ -3,7 +3,7 @@ import type { Mood, MoodConfig, MeterColor, NagatoroState, ArtHeight } from "../
 import { MOOD_CONFIGS, ART_HEIGHTS } from "../hooks/scripts/_types";
 import { computeBoredom } from "../hooks/scripts/_mood";
 import { POOLS, pickLine } from "../hooks/scripts/_dialogue";
-import { loadState } from "../hooks/scripts/_helpers";
+import { loadState, applyDailyReset, toLocalDateString, clamp } from "../hooks/scripts/_helpers";
 
 const ART_DIR = `${import.meta.dir}/../assets/art`;
 
@@ -23,6 +23,7 @@ async function readArt(mood: Mood, height: ArtHeight): Promise<string[]> {
 }
 
 export function meterBar(value: number, color: MeterColor, jealous: boolean): string {
+  value = clamp(value, 0, 100);
   const filled = Math.round(value / 10);
   const empty = 10 - filled;
   const ch = jealous ? "!" : "\u2588";
@@ -51,7 +52,7 @@ const CTX_WARNINGS: { min: number; artMood: Mood; quotes: string[] }[] = [
 
 export function ctxOverride(pct: number): { artMood: Mood; cfg: MoodConfig; quote: string } | null {
   for (const w of CTX_WARNINGS) {
-    if (pct >= w.min) return { artMood: w.artMood, cfg: MOOD_CONFIGS[w.artMood], quote: `${pickLine(w.quotes)} [ctx:${Math.round(pct)}%]` };
+    if (pct >= w.min) return { artMood: w.artMood, cfg: MOOD_CONFIGS[w.artMood], quote: `${pickLine(w.quotes)} [ctx:${Math.floor(pct)}%]` };
   }
   return null;
 }
@@ -62,7 +63,7 @@ function buildInfoLines(
   const bar = meterBar(state.senpaiMeter, cfg.meterColor, state.mood === "jealous");
   const respectBar = meterBar(state.respect, "cyan", false);
   const boredomBar = meterBar(liveBoredom, "dim", false);
-  return [
+  const lines = [
     `${cfg.emoji} ${cfg.label}`,
     "",
     quote,
@@ -71,9 +72,10 @@ function buildInfoLines(
     `Respect ${respectBar} ${state.respect}%`,
     `Boredom ${boredomBar} ${liveBoredom}%`,
     "",
-    `Pats: ${state.totalPats}  Swears: ${state.totalInsults}  Genuine: ${state.genuineMoments}`,
-    state.jealousyTarget ? `Rival: ${state.jealousyTarget}` : "",
+    `Pats: ${state.totalPats}  Swears: ${state.totalSwears}  Genuine: ${state.genuineMoments}`,
   ];
+  if (state.jealousyTarget) lines.push(`Rival: ${state.jealousyTarget}`);
+  return lines;
 }
 
 function mergeColumns(artLines: string[], info: string[]): string {
@@ -89,7 +91,8 @@ async function main() {
   let input: StatusInput = {};
   try { input = await Bun.stdin.json(); } catch { /* stdin unavailable */ }
 
-  const state = await loadState();
+  let state = await loadState();
+  state = applyDailyReset(state, toLocalDateString(new Date()));
   const pct = input.context_window?.used_percentage ?? 0;
   const override = ctxOverride(pct);
 

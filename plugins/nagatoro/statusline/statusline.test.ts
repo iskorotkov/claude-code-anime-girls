@@ -46,6 +46,11 @@ describe("meterBar", () => {
     expect(out.startsWith("[")).toBe(true);
     expect(out.endsWith("]")).toBe(true);
   });
+
+  it("out-of-range values do not throw", () => {
+    expect(() => meterBar(150, "cyan", false)).not.toThrow();
+    expect(() => meterBar(-10, "cyan", false)).not.toThrow();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -96,6 +101,13 @@ describe("ctxOverride", () => {
     const r = ctxOverride(60);
     expect(r).not.toBeNull();
     expect(r!.artMood).toBe("smug");
+  });
+
+  it("89.5% returns flustered with ctx:89%", () => {
+    const r = ctxOverride(89.5);
+    expect(r).not.toBeNull();
+    expect(r!.artMood).toBe("flustered");
+    expect(r!.quote).toContain("[ctx:89%]");
   });
 });
 

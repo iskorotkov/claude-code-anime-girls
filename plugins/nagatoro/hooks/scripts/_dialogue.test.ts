@@ -54,6 +54,12 @@ describe("pickLine", () => {
   it("returns fallback for empty pool with seed", () => {
     expect(pickLine([], 5)).toBe("...");
   });
+
+  it("returns valid string for negative seed", () => {
+    const result = pickLine(pool, -3);
+    expect(typeof result).toBe("string");
+    expect(pool).toContain(result);
+  });
 });
 
 describe("substituteRival", () => {

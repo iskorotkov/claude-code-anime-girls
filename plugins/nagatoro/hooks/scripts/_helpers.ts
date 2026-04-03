@@ -15,8 +15,9 @@ export async function runHook<I, O>(
     const raw = await Bun.stdin.text();
     const input = JSON.parse(raw) as I;
     const result = await fn(input);
-    if (result) console.log(JSON.stringify(result));
+    if (result !== undefined && result !== null) console.log(JSON.stringify(result));
   } catch (e) {
+    process.exitCode = 1;
     console.error(`[hook:${name}] ${e}`);
   }
 }
@@ -41,6 +42,7 @@ export async function saveState(state: NagatoroState): Promise<void> {
 }
 
 export function clamp(n: number, min: number, max: number): number {
+  if (Number.isNaN(n)) return min;
   return Math.min(max, Math.max(min, n));
 }
 
@@ -52,8 +54,12 @@ function sanitizeNumber(v: unknown, fallback: number, min: number, max: number):
 }
 
 function sanitizeCounter(v: unknown, fallback: number): number {
-  if (typeof v !== "number" || Number.isNaN(v)) return fallback;
+  if (typeof v !== "number" || !Number.isFinite(v)) return fallback;
   return Math.max(0, Math.floor(v));
+}
+
+function isISODateString(v: unknown): v is string {
+  return typeof v === "string" && /^\d{4}-\d{2}-\d{2}(T|$)/.test(v) && !isNaN(new Date(v).getTime());
 }
 
 export function sanitizeState(raw: Record<string, unknown>): NagatoroState {
@@ -63,10 +69,10 @@ export function sanitizeState(raw: Record<string, unknown>): NagatoroState {
     boredom: sanitizeNumber(raw.boredom, DEFAULT_STATE.boredom, 0, 100),
     respect: sanitizeNumber(raw.respect, DEFAULT_STATE.respect, 0, 100),
     jealousyTarget: typeof raw.jealousyTarget === "string" ? raw.jealousyTarget : null,
-    lastInteraction: typeof raw.lastInteraction === "string" && !isNaN(new Date(raw.lastInteraction).getTime()) ? raw.lastInteraction : null,
-    lastResetDate: typeof raw.lastResetDate === "string" && !isNaN(new Date(raw.lastResetDate).getTime()) ? raw.lastResetDate : null,
+    lastInteraction: isISODateString(raw.lastInteraction) ? raw.lastInteraction : null,
+    lastResetDate: isISODateString(raw.lastResetDate) ? raw.lastResetDate : null,
     totalPats: sanitizeCounter(raw.totalPats, DEFAULT_STATE.totalPats),
-    totalInsults: sanitizeCounter(raw.totalInsults, DEFAULT_STATE.totalInsults),
+    totalSwears: sanitizeCounter(raw.totalSwears ?? raw.totalInsults, DEFAULT_STATE.totalSwears),
     genuineMoments: sanitizeCounter(raw.genuineMoments, DEFAULT_STATE.genuineMoments),
     consecutiveErrors: sanitizeCounter(raw.consecutiveErrors, DEFAULT_STATE.consecutiveErrors),
     interactionCount: sanitizeCounter(raw.interactionCount, DEFAULT_STATE.interactionCount),
@@ -90,7 +96,7 @@ export function applyDailyReset(state: NagatoroState, today: string): NagatoroSt
     artHeight: state.artHeight,
     lastResetDate: today,
     totalPats: state.totalPats,
-    totalInsults: state.totalInsults,
+    totalSwears: state.totalSwears,
     genuineMoments: state.genuineMoments,
   };
 }

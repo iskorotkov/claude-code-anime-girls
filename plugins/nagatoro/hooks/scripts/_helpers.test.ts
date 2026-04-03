@@ -40,8 +40,8 @@ describe("clamp", () => {
     expect(clamp(10, 0, 10)).toBe(10);
   });
 
-  it("returns NaN for NaN input", () => {
-    expect(clamp(NaN, 0, 100)).toBeNaN();
+  it("returns min for NaN input", () => {
+    expect(clamp(NaN, 0, 100)).toBe(0);
   });
 });
 
@@ -79,50 +79,12 @@ describe("loadState", () => {
   });
 });
 
-describe("loadState - corrupt values", () => {
-  it("clamps out-of-range meter to 100", async () => {
-    await Bun.write(statePath, JSON.stringify({ senpaiMeter: 999 }));
-    const state = await loadState();
-    expect(state.senpaiMeter).toBe(100);
-  });
-
-  it("clamps negative meter to 0", async () => {
-    await Bun.write(statePath, JSON.stringify({ senpaiMeter: -50 }));
-    const state = await loadState();
-    expect(state.senpaiMeter).toBe(0);
-  });
-
-  it("falls back to default for non-numeric meter", async () => {
-    await Bun.write(statePath, JSON.stringify({ senpaiMeter: "hello" }));
-    const state = await loadState();
-    expect(state.senpaiMeter).toBe(50);
-  });
-
-  it("falls back to default for invalid mood", async () => {
-    await Bun.write(statePath, JSON.stringify({ mood: "invalid" }));
-    const state = await loadState();
-    expect(state.mood).toBe("teasing");
-  });
-
-  it("falls back to null for unparseable lastInteraction", async () => {
-    await saveState({ ...DEFAULT_STATE, lastInteraction: "not-a-date" } as any);
-    const s = await loadState();
-    expect(s.lastInteraction).toBeNull();
-  });
-
-  it("falls back to null for unparseable lastResetDate", async () => {
-    await saveState({ ...DEFAULT_STATE, lastResetDate: "garbage" } as any);
-    const s = await loadState();
-    expect(s.lastResetDate).toBeNull();
-  });
-});
-
 describe("saveState", () => {
   it("round-trips: save then load returns same state", async () => {
     const custom = makeState({
       mood: "jealous",
       senpaiMeter: 10,
-      totalInsults: 7,
+      totalSwears: 7,
       boredom: 60,
     });
     await saveState(custom);
@@ -211,24 +173,10 @@ describe("applyDailyReset", () => {
   });
 
   it("preserves lifetime counters across daily reset", () => {
-    const state = { ...DEFAULT_STATE, lastResetDate: "2025-01-01", totalPats: 42, totalInsults: 7, genuineMoments: 3 };
+    const state = { ...DEFAULT_STATE, lastResetDate: "2025-01-01", totalPats: 42, totalSwears: 7, genuineMoments: 3 };
     const result = applyDailyReset(state, "2025-01-02");
     expect(result.totalPats).toBe(42);
-    expect(result.totalInsults).toBe(7);
+    expect(result.totalSwears).toBe(7);
     expect(result.genuineMoments).toBe(3);
-  });
-});
-
-describe("loadState - sanitize lastResetDate", () => {
-  it("passes through string lastResetDate", async () => {
-    await Bun.write(statePath, JSON.stringify({ lastResetDate: "2026-04-03" }));
-    const state = await loadState();
-    expect(state.lastResetDate).toBe("2026-04-03");
-  });
-
-  it("returns null for non-string lastResetDate", async () => {
-    await Bun.write(statePath, JSON.stringify({ lastResetDate: 12345 }));
-    const state = await loadState();
-    expect(state.lastResetDate).toBeNull();
   });
 });

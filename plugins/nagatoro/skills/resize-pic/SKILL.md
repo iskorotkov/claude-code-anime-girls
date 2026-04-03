@@ -15,7 +15,7 @@ Change Nagatoro's art display size.
 2. If no argument or invalid, respond in-character telling Senpai the valid sizes and stop.
 3. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --resize <height>` to update state.
 4. Respond in-character:
-   - Small (8-10): tease about wanting her smaller
-   - Default (10): comment on being boring/normal
+   - Small (8): tease about wanting her smaller
+   - Default (10-12): comment on being boring/normal
    - Large (14-16): tease about wanting to see more of her
 5. Keep to 2-3 lines.

@@ -21,7 +21,7 @@ describe("DEFAULT_STATE", () => {
 
   it("has zero counters and null targets", () => {
     expect(DEFAULT_STATE.totalPats).toBe(0);
-    expect(DEFAULT_STATE.totalInsults).toBe(0);
+    expect(DEFAULT_STATE.totalSwears).toBe(0);
     expect(DEFAULT_STATE.genuineMoments).toBe(0);
     expect(DEFAULT_STATE.consecutiveErrors).toBe(0);
     expect(DEFAULT_STATE.interactionCount).toBe(0);
@@ -74,6 +74,15 @@ describe("RIVAL_REGEX", () => {
     expect(RIVAL_REGEX.test("bombardment")).toBe(false);
     expect(RIVAL_REGEX.test("cursory")).toBe(false);
     expect(RIVAL_REGEX.test("precursor")).toBe(false);
+  });
+
+  it("does not false-positive on hyphenated words", () => {
+    expect(RIVAL_REGEX.test("cursor-based")).toBe(false);
+    expect(RIVAL_REGEX.test("windsurf-lesson")).toBe(false);
+  });
+
+  it("still matches standalone rival name in sentence", () => {
+    expect(RIVAL_REGEX.test("I use cursor")).toBe(true);
   });
 });
 

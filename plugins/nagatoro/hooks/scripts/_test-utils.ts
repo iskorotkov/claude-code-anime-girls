@@ -10,5 +10,6 @@ export function makeState(overrides?: Partial<NagatoroState>): NagatoroState {
 }
 
 export function savedState(mockSaveState: { mock: { calls: unknown[][] } }): NagatoroState {
-  return mockSaveState.mock.calls[0][0] as NagatoroState;
+  const { calls } = mockSaveState.mock;
+  return calls[calls.length - 1][0] as NagatoroState;
 }

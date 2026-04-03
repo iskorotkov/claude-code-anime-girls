@@ -14,29 +14,28 @@ function detectTrigger(
 ): { triggers: MoodTrigger[]; reaction: string | null; jealousyTarget?: string } {
   if (!prompt) return { triggers: ["interaction"], reaction: null };
 
-  const triggers: MoodTrigger[] = [];
-  let reaction: string | null = null;
+  const triggers: MoodTrigger[] = ["interaction"];
+  const reactions: string[] = [];
   let jealousyTarget: string | undefined;
 
   if (SWEAR_REGEX.test(prompt)) {
     triggers.push("swearing");
-    reaction = `Nagatoro reacts: "${pickLine(POOLS.laughing)}"`;
+    reactions.push(`Nagatoro reacts: "${pickLine(POOLS.laughing)}"`);
   }
   const rivalMatch = RIVAL_REGEX.exec(prompt);
   if (rivalMatch) {
     triggers.push("rival_detected");
     const line = substituteRival(pickLine(POOLS.jealous), rivalMatch[1]);
-    reaction = `Nagatoro reacts: "${line}"`;
+    reactions.push(`Nagatoro reacts: "${line}"`);
     jealousyTarget = rivalMatch[1];
   }
-  if (triggers.length === 0) triggers.push("interaction");
-  return { triggers, reaction, jealousyTarget };
+  return { triggers, reaction: reactions.length > 0 ? reactions.join(" ") : null, jealousyTarget };
 }
 
 export async function run(input: PromptSubmitInput): Promise<HookOutput | undefined> {
   const state = await loadState();
   state.boredom = computeBoredom(state, new Date());
-  const prompt = (input.prompt ?? "").toLowerCase();
+  const prompt = input.prompt ?? "";
 
   const result = detectTrigger(prompt, state);
   for (const t of result.triggers) Object.assign(state, applyMoodEffects(state, t));

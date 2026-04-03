@@ -1,5 +1,5 @@
-import { loadState, saveState } from "./_helpers";
-import { applyMoodEffects, type MoodTrigger } from "./_mood";
+import { loadState, saveState, applyDailyReset, toLocalDateString } from "./_helpers";
+import { applyMoodEffects, computeBoredom, type MoodTrigger } from "./_mood";
 import { ART_HEIGHTS, type ArtHeight } from "./_types";
 
 const ACTIONS: Record<string, MoodTrigger> = {
@@ -9,7 +9,14 @@ const ACTIONS: Record<string, MoodTrigger> = {
 };
 
 const flag = process.argv[2];
-const state = await loadState();
+if (!flag) {
+  console.error("Usage: _cli.ts --read|--pat|--compliment|--feed|--interact|--resize <height>");
+  process.exit(1);
+}
+
+let state = await loadState();
+state = applyDailyReset(state, toLocalDateString(new Date()));
+state.boredom = computeBoredom(state, new Date());
 const trigger = ACTIONS[flag];
 
 if (flag === "--resize") {

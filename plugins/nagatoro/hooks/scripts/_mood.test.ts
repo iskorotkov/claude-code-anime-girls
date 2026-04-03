@@ -73,9 +73,9 @@ describe("applyMoodEffects", () => {
     expect(r.senpaiMeter).toBe(45);
     expect(r.consecutiveErrors).toBe(0);
   });
-  it("swearing: totalInsults++, consecutiveErrors=0", () => {
-    const r = applyMoodEffects(makeState({ totalInsults: 5, consecutiveErrors: 2 }), "swearing");
-    expect(r.totalInsults).toBe(6);
+  it("swearing: totalSwears++, consecutiveErrors=0", () => {
+    const r = applyMoodEffects(makeState({ totalSwears: 5, consecutiveErrors: 2 }), "swearing");
+    expect(r.totalSwears).toBe(6);
     expect(r.consecutiveErrors).toBe(0);
   });
   it("tool_failure: respect -1, consecutiveErrors++", () => {

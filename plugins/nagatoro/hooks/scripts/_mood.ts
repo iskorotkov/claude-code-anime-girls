@@ -36,7 +36,7 @@ export function transitionMood(state: NagatoroState, trigger: MoodTrigger): Naga
 
 const EFFECTS: Record<MoodTrigger, (s: NagatoroState) => void> = {
   rival_detected: (s) => { s.senpaiMeter = clamp(s.senpaiMeter - 5, 0, 100); s.consecutiveErrors = 0; s.moodLockedFor = 0; },
-  swearing: (s) => { s.totalInsults++; s.consecutiveErrors = 0; s.moodLockedFor = 0; },
+  swearing: (s) => { s.totalSwears++; s.consecutiveErrors = 0; s.moodLockedFor = 0; },
   tool_failure: (s) => { s.respect = clamp(s.respect - 1, 0, 100); s.consecutiveErrors++; s.moodLockedFor = 0; },
   pat: (s) => { s.senpaiMeter = clamp(s.senpaiMeter + 2, 0, 100); s.totalPats++; s.consecutiveErrors = 0; },
   compliment: (s) => { s.senpaiMeter = clamp(s.senpaiMeter + 3, 0, 100); s.consecutiveErrors = 0; },

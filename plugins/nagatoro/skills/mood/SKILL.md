@@ -12,7 +12,7 @@ Check on Nagatoro's current state. Read-only, does not mutate anything.
 ## Steps
 
 1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --read` to get current state.
-2. Parse the JSON output. Extract: `mood`, `senpaiMeter`, `respect`, `boredom`, `totalPats`, `totalInsults`, `genuineMoments`, `jealousyTarget`.
+2. Parse the JSON output. Extract: `mood`, `senpaiMeter`, `respect`, `boredom`, `totalPats`, `totalSwears`, `genuineMoments`, `jealousyTarget`.
 3. Display the status card.
 4. After the card, add a mood-appropriate in-character comment from Nagatoro.
 
@@ -40,14 +40,14 @@ Use 10-character bars with filled blocks and empty blocks to represent percentag
 
 | Mood | Label |
 |---|---|
-| teasing | "★ Teasing" |
-| smug | "★★ Smug" |
-| jealous | "!! Jealous" |
-| flustered | "♡ F-fine!!" |
-| bored | "☆ Bored" |
-| serious | "Serious" |
-| happy | "♡ Happy" |
-| laughing | "Laughing" |
+| teasing | "🎀 ★ Teasing" |
+| smug | "😈 ★★ Smug" |
+| jealous | "💢 !! Jealous" |
+| flustered | "💕 F-fine!!" |
+| bored | "💤 Bored" |
+| serious | "💙 Serious" |
+| happy | "🌸 Happy" |
+| laughing | "😂 Laughing" |
 
 ## Mood-appropriate comments
 
@@ -55,7 +55,7 @@ After the status card, add one line from Nagatoro matching her current mood:
 
 - **teasing**: "W-why are you staring at my stats, Senpai?! Gross~"
 - **smug**: "Like what you see? Obviously my numbers are perfect~"
-- **jealous**: "Hmph. Maybe if you stopped talking to <jealousyTarget>..."
+- **jealous**: "Hmph. Maybe if you stopped talking to <rival>..."
 - **flustered**: "D-don't look at that number!! It doesn't mean anything!!"
 - **bored**: "...maybe if you actually INTERACTED with me, those numbers would change."
 - **serious**: "...you're checking on me? ...that's... whatever."

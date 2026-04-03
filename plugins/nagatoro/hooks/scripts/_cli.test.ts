@@ -117,4 +117,24 @@ describe("_cli", () => {
     const out = JSON.parse(stdout);
     expect(out.mood).toBe("teasing");
   });
+
+  it("no args exits with code 1", async () => {
+    const proc = Bun.spawn(["bun", CLI], {
+      env: { ...process.env, CLAUDE_PLUGIN_DATA: tmpDir },
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const exitCode = await proc.exited;
+    expect(exitCode).toBe(1);
+  });
+
+  it("--read with stale lastResetDate returns reset senpaiMeter", async () => {
+    const statePath = join(tmpDir, "state.json");
+    const stale = { ...DEFAULT_STATE, senpaiMeter: 80, lastResetDate: "2000-01-01" };
+    await Bun.write(statePath, JSON.stringify(stale));
+    const { stdout, exitCode } = await runCli("--read");
+    expect(exitCode).toBe(0);
+    const state = JSON.parse(stdout);
+    expect(state.senpaiMeter).toBe(50);
+  });
 });

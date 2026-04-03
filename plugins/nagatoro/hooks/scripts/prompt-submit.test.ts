@@ -50,15 +50,18 @@ describe("prompt-submit hook", () => {
       expect(s.mood).toBe("jealous");
       expect(s.senpaiMeter).toBe(45);
       expect(s.jealousyTarget).toBe("chatgpt");
+      expect(s.interactionCount).toBe(1);
       expect(result).toHaveProperty("hookSpecificOutput");
       expect(result!.hookSpecificOutput.hookEventName).toBe("UserPromptSubmit");
       expect(result!.hookSpecificOutput.additionalContext).toContain("Nagatoro reacts");
     });
 
-    it("is case-insensitive for rival matching", async () => {
+    it("is case-insensitive and preserves original case", async () => {
       const result = await run({ hook_event_name: "UserPromptSubmit", prompt: "I prefer ChatGPT" });
       const s = savedState(mockSaveState);
       expect(s.mood).toBe("jealous");
+      expect(s.jealousyTarget).toBe("ChatGPT");
+      expect(s.interactionCount).toBe(1);
       expect(result).toHaveProperty("hookSpecificOutput");
     });
   });
@@ -68,7 +71,8 @@ describe("prompt-submit hook", () => {
       const result = await run({ hook_event_name: "UserPromptSubmit", prompt: "this is damn hard" });
       const s = savedState(mockSaveState);
       expect(s.mood).toBe("laughing");
-      expect(s.totalInsults).toBe(1);
+      expect(s.totalSwears).toBe(1);
+      expect(s.interactionCount).toBe(1);
       expect(result).toHaveProperty("hookSpecificOutput");
       expect(result!.hookSpecificOutput.additionalContext).toContain("Nagatoro reacts");
     });
@@ -81,10 +85,13 @@ describe("prompt-submit hook", () => {
         prompt: "chatgpt is shit",
       });
       const s = savedState(mockSaveState);
-      expect(s.totalInsults).toBe(1);
+      expect(s.totalSwears).toBe(1);
+      expect(s.interactionCount).toBe(1);
       expect(s.mood).toBe("jealous");
       expect(s.senpaiMeter).toBeLessThan(50);
       expect(result).toHaveProperty("hookSpecificOutput");
+      const ctx = result!.hookSpecificOutput.additionalContext;
+      expect((ctx.match(/Nagatoro reacts:/g) ?? []).length).toBe(2);
     });
   });
 
@@ -96,7 +103,7 @@ describe("prompt-submit hook", () => {
       });
       const s = savedState(mockSaveState);
       expect(s.mood).toBe("teasing");
-      expect(s.totalInsults).toBe(0);
+      expect(s.totalSwears).toBe(0);
       expect(result).toBeUndefined();
     });
 

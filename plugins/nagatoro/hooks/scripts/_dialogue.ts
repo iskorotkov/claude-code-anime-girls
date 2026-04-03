@@ -108,7 +108,7 @@ export const GREETINGS = {
 
 export function pickLine(pool: string[], seed?: number): string {
   if (pool.length === 0) return "...";
-  if (seed !== undefined) return pool[seed % pool.length];
+  if (seed !== undefined) return pool[Math.abs(seed) % pool.length];
   return pool[Math.floor(Math.random() * pool.length)];
 }
 

@@ -15,7 +15,15 @@ const mockToLocalDateString = mock((date: Date) => {
 
 const realDailyReset = (state: any, today: string) => {
   if (state.lastResetDate === today) return state;
-  return { ...DEFAULT_STATE, lastInteraction: state.lastInteraction, artHeight: state.artHeight, lastResetDate: today };
+  return {
+    ...DEFAULT_STATE,
+    lastInteraction: state.lastInteraction,
+    artHeight: state.artHeight,
+    lastResetDate: today,
+    totalPats: state.totalPats,
+    totalSwears: state.totalSwears,
+    genuineMoments: state.genuineMoments,
+  };
 };
 const mockApplyDailyReset = mock((state: any) => state);
 
@@ -68,6 +76,15 @@ describe("session-start hook", () => {
       const result = await run({ hook_event_name: "SessionStart" });
       const greeting = result.hookSpecificOutput.additionalContext;
       expect(GREETINGS.longAbsence.some((g) => greeting.includes(g))).toBe(true);
+    });
+
+    it("transitions mood to bored on very long absence (boredom >= 80)", async () => {
+      const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      mockLoadState.mockResolvedValueOnce(makeState({ lastInteraction: dayAgo }));
+      await run({ hook_event_name: "SessionStart" });
+      const s = savedState(mockSaveState);
+      expect(s.mood).toBe("bored");
+      expect(s.boredom).toBe(0);
     });
   });
 

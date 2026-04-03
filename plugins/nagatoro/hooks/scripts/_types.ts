@@ -22,7 +22,7 @@ export interface NagatoroState {
   lastInteraction: string | null;
   lastResetDate: string | null;
   totalPats: number;
-  totalInsults: number;
+  totalSwears: number;
   genuineMoments: number;
   consecutiveErrors: number;
   interactionCount: number;
@@ -49,7 +49,7 @@ export const DEFAULT_STATE: NagatoroState = {
   lastInteraction: null,
   lastResetDate: null,
   totalPats: 0,
-  totalInsults: 0,
+  totalSwears: 0,
   genuineMoments: 0,
   consecutiveErrors: 0,
   interactionCount: 0,
@@ -82,5 +82,5 @@ export const SWEAR_WORDS = [
   "stfu", "ffs", "omfg", "fml", "jfc", "goddamn", "goddammit",
 ];
 
-export const RIVAL_REGEX = new RegExp(`\\b(${RIVAL_NAMES.join("|")})\\b`, "i");
+export const RIVAL_REGEX = new RegExp(`(?<![a-zA-Z0-9-])(${RIVAL_NAMES.join("|")})(?![a-zA-Z0-9-])`, "i");
 export const SWEAR_REGEX = new RegExp(`\\b(${SWEAR_WORDS.join("|")})\\b`, "i");

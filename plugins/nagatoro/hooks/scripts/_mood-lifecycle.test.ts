@@ -85,11 +85,11 @@ describe("counter monotonicity", () => {
       "rival_detected", "swearing", "tool_failure", "pat",
       "compliment", "task_success", "interaction", "idle", "feed",
     ];
-    let s = makeState({ totalPats: 5, totalInsults: 3, genuineMoments: 2 });
+    let s = makeState({ totalPats: 5, totalSwears: 3, genuineMoments: 2 });
     for (const trigger of triggers) {
       const next = applyMoodEffects(s, trigger);
       expect(next.totalPats).toBeGreaterThanOrEqual(s.totalPats);
-      expect(next.totalInsults).toBeGreaterThanOrEqual(s.totalInsults);
+      expect(next.totalSwears).toBeGreaterThanOrEqual(s.totalSwears);
       expect(next.genuineMoments).toBeGreaterThanOrEqual(s.genuineMoments);
       s = next;
     }
@@ -98,30 +98,30 @@ describe("counter monotonicity", () => {
 
 describe("counter isolation", () => {
   it("pat increments totalPats only", () => {
-    const s = makeState({ totalPats: 0, totalInsults: 5, genuineMoments: 3 });
+    const s = makeState({ totalPats: 0, totalSwears: 5, genuineMoments: 3 });
     const next = applyMoodEffects(s, "pat");
     expect(next.totalPats).toBe(1);
-    expect(next.totalInsults).toBe(5);
+    expect(next.totalSwears).toBe(5);
     expect(next.genuineMoments).toBe(3);
   });
 
-  it("swearing increments totalInsults only", () => {
-    const s = makeState({ totalPats: 5, totalInsults: 0, genuineMoments: 3 });
+  it("swearing increments totalSwears only", () => {
+    const s = makeState({ totalPats: 5, totalSwears: 0, genuineMoments: 3 });
     const next = applyMoodEffects(s, "swearing");
     expect(next.totalPats).toBe(5);
-    expect(next.totalInsults).toBe(1);
+    expect(next.totalSwears).toBe(1);
     expect(next.genuineMoments).toBe(3);
   });
 
   it("task_success when happy increments genuineMoments only", () => {
     randomSpy = spyOn(Math, "random").mockReturnValue(0.24);
     const s = makeState({
-      totalPats: 5, totalInsults: 3, genuineMoments: 0,
+      totalPats: 5, totalSwears: 3, genuineMoments: 0,
       respect: 75, senpaiMeter: 80,
     });
     const next = applyMoodEffects(s, "task_success");
     expect(next.totalPats).toBe(5);
-    expect(next.totalInsults).toBe(3);
+    expect(next.totalSwears).toBe(3);
     expect(next.genuineMoments).toBe(1);
   });
 });
