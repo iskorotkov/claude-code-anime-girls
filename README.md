@@ -33,8 +33,8 @@ curl -fsSL https://bun.sh/install | bash
 ### 1. Add Marketplace and Install Plugin
 
 ```bash
-claude plugins add --from https://github.com/iskorotkov/claude-code-anime-girls
-claude plugins install nagatoro
+claude plugins marketplace add iskorotkov/claude-code-anime-girls
+claude plugins install nagatoro@anime-girls
 ```
 
 ### 2. Activate Output Style
@@ -85,41 +85,41 @@ The script receives session data as JSON on stdin and outputs ANSI art to stdout
 
 Nagatoro reacts to your coding session in real time:
 
-| Trigger | Mood |
-|---|---|
-| Normal interaction | Teasing |
-| Tool failure | Smug / Serious (after 2+ consecutive) |
-| Mention a rival AI | Jealous |
-| Pat or compliment | Flustered |
-| Swearing | Laughing |
-| Long idle | Bored |
-| High respect + affection | Happy (rare) |
+| Trigger                  | Mood                                  |
+| ------------------------ | ------------------------------------- |
+| Normal interaction       | Teasing                               |
+| Tool failure             | Smug / Serious (after 2+ consecutive) |
+| Mention a rival AI       | Jealous                               |
+| Pat or compliment        | Flustered                             |
+| Swearing                 | Laughing                              |
+| Long idle                | Bored                                 |
+| High respect + affection | Happy (rare)                          |
 
 Rival AI names that trigger jealousy include ChatGPT, Copilot, Gemini, Cursor, Codex, and others.
 
 ### Slash Commands
 
-| Command | Effect |
-|---|---|
-| `/pat` | Pat Nagatoro on the head |
-| `/compliment` | Compliment her (watch her malfunction) |
-| `/feed` | Feed her (she judges your taste) |
-| `/resize-pic` | Change ASCII art size (8, 10, 12, 14, 16) |
-| `/mood` | Check current mood and stats |
-| `/ask-advice` | Get coding advice wrapped in teasing |
-| `/ask-joke` | Hear a bad programming joke |
-| `/ask-wisdom` | Surprisingly insightful programming wisdom |
-| `/ask-compliment` | Fish for a compliment |
+| Command           | Effect                                     |
+| ----------------- | ------------------------------------------ |
+| `/pat`            | Pat Nagatoro on the head                   |
+| `/compliment`     | Compliment her (watch her malfunction)     |
+| `/feed`           | Feed her (she judges your taste)           |
+| `/resize-pic`     | Change ASCII art size (8, 10, 12, 14, 16)  |
+| `/mood`           | Check current mood and stats               |
+| `/ask-advice`     | Get coding advice wrapped in teasing       |
+| `/ask-joke`       | Hear a bad programming joke                |
+| `/ask-wisdom`     | Surprisingly insightful programming wisdom |
+| `/ask-compliment` | Fish for a compliment                      |
 
 ### Art Size
 
 The status line art can be resized to 5 heights: 8, 10, 12, 14, or 16 lines.
 
-| Method | Example |
-|---|---|
-| Slash command | `/resize-pic 8` |
-| Environment variable | `NAGATORO_ART_HEIGHT=16` |
-| CLI | `bun hooks/scripts/_cli.ts --resize 12` |
+| Method               | Example                                 |
+| -------------------- | --------------------------------------- |
+| Slash command        | `/resize-pic 8`                         |
+| Environment variable | `NAGATORO_ART_HEIGHT=16`                |
+| CLI                  | `bun hooks/scripts/_cli.ts --resize 12` |
 
 The default height is 12 lines.
 
