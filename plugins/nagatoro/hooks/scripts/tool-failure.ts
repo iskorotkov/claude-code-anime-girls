@@ -3,7 +3,7 @@ import { applyMoodEffects } from "./_mood";
 
 interface ToolFailureInput {
   hook_event_name: string;
-  tool_name?: string;
+  tool_name?: string; // provided by Claude Code but not currently used
 }
 
 export async function run(_input: ToolFailureInput): Promise<undefined> {

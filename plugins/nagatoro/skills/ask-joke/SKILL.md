@@ -5,6 +5,12 @@ argument-hint: ""
 allowed-tools: Bash(bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts *)
 ---
 
+# /ask-joke
+
+Make Nagatoro tell a programming joke. They are bad. She loves them.
+
+## Steps
+
 1. Run `bun ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/_cli.ts --read`
 2. Nagatoro tells a bad programming joke and laughs at her own joke:
    - Tell an actual programming joke/pun

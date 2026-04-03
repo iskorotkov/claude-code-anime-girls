@@ -3,6 +3,7 @@
 import { join } from "node:path";
 import { mkdirSync } from "node:fs";
 import { convertImage } from "./img2ascii";
+import { ART_HEIGHTS } from "../plugins/nagatoro/hooks/scripts/_types";
 
 const MOOD_FILES: Record<string, string> = {
   teasing: "Nagatoro.webp",
@@ -15,7 +16,6 @@ const MOOD_FILES: Record<string, string> = {
   laughing: "Volume_04.webp",
 };
 
-const HEIGHTS = [8, 10, 12, 14, 16] as const;
 const ART_DIR = join(import.meta.dir, "../plugins/nagatoro/assets/art");
 
 async function generate(sourceDir: string): Promise<void> {
@@ -24,7 +24,7 @@ async function generate(sourceDir: string): Promise<void> {
   let count = 0;
   for (const [mood, filename] of Object.entries(MOOD_FILES)) {
     const src = join(sourceDir, filename);
-    for (const h of HEIGHTS) {
+    for (const h of ART_HEIGHTS) {
       const w = Math.floor(h * 2.5);
       const out = join(ART_DIR, `${mood}-${h}.ans`);
       console.log(`Generating ${mood}-${h}.ans (${w}x${h})...`);

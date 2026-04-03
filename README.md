@@ -121,7 +121,7 @@ The status line art can be resized to 5 heights: 8, 10, 12, 14, or 16 lines.
 | Environment variable | `NAGATORO_ART_HEIGHT=16`                |
 | CLI                  | `bun hooks/scripts/_cli.ts --resize 12` |
 
-The default height is 12 lines.
+The default height is 10 lines.
 
 ## Development
 

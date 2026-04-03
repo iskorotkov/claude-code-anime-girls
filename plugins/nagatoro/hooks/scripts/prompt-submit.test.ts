@@ -1,5 +1,5 @@
 import { describe, it, expect, mock, beforeEach, afterEach, spyOn } from "bun:test";
-import { makeState } from "./_test-utils";
+import { makeState, savedState } from "./_test-utils";
 
 const mockLoadState = mock(() => Promise.resolve(makeState()));
 const mockSaveState = mock(() => Promise.resolve());
@@ -8,6 +8,7 @@ mock.module("./_helpers", () => ({
   loadState: mockLoadState,
   saveState: mockSaveState,
   runHook: mock(),
+  clamp: (n: number, min: number, max: number) => Math.min(max, Math.max(min, n)),
 }));
 
 const { run } = await import("./prompt-submit");
@@ -25,22 +26,18 @@ afterEach(() => {
   randomSpy.mockRestore();
 });
 
-function savedState() {
-  return mockSaveState.mock.calls[0][0] as ReturnType<typeof makeState>;
-}
-
 describe("prompt-submit hook", () => {
   describe("empty prompt", () => {
     it("applies interaction effect for empty string", async () => {
       const result = await run({ hook_event_name: "UserPromptSubmit", prompt: "" });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.interactionCount).toBe(1);
       expect(result).toBeUndefined();
     });
 
     it("applies interaction effect when prompt is undefined", async () => {
       const result = await run({ hook_event_name: "UserPromptSubmit" });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.interactionCount).toBe(1);
       expect(result).toBeUndefined();
     });
@@ -49,7 +46,7 @@ describe("prompt-submit hook", () => {
   describe("rival detection", () => {
     it("detects rival and returns jealous reaction", async () => {
       const result = await run({ hook_event_name: "UserPromptSubmit", prompt: "I love chatgpt" });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.mood).toBe("jealous");
       expect(s.senpaiMeter).toBe(45);
       expect(s.jealousyTarget).toBe("chatgpt");
@@ -60,7 +57,7 @@ describe("prompt-submit hook", () => {
 
     it("is case-insensitive for rival matching", async () => {
       const result = await run({ hook_event_name: "UserPromptSubmit", prompt: "I prefer ChatGPT" });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.mood).toBe("jealous");
       expect(result).toHaveProperty("hookSpecificOutput");
     });
@@ -69,7 +66,7 @@ describe("prompt-submit hook", () => {
   describe("swear detection", () => {
     it("detects swear and applies laughing effect", async () => {
       const result = await run({ hook_event_name: "UserPromptSubmit", prompt: "this is damn hard" });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.mood).toBe("laughing");
       expect(s.totalInsults).toBe(1);
       expect(result).toHaveProperty("hookSpecificOutput");
@@ -83,7 +80,7 @@ describe("prompt-submit hook", () => {
         hook_event_name: "UserPromptSubmit",
         prompt: "chatgpt is shit",
       });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.mood).toBe("jealous");
       expect(result).toHaveProperty("hookSpecificOutput");
     });
@@ -92,7 +89,7 @@ describe("prompt-submit hook", () => {
   describe("generic prompt", () => {
     it("applies interaction for non-matching prompt", async () => {
       const result = await run({ hook_event_name: "UserPromptSubmit", prompt: "good morning" });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.interactionCount).toBe(1);
       expect(result).toBeUndefined();
     });

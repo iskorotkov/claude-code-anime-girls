@@ -1,0 +1,10 @@
+{
+  "name": "claude-code-anime-girls",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nagatoro-themed tsundere companion plugin for Claude Code",
+  "author": "Ivan Korotkov",
+  "scripts": {
+    "test": "bun test"
+  }
+}

@@ -1,5 +1,5 @@
 import { mkdir } from "node:fs/promises";
-import { ART_HEIGHTS, DEFAULT_STATE, type ArtHeight, type Mood, type NagatoroState } from "./_types";
+import { ART_HEIGHTS, DEFAULT_STATE, MOOD_CONFIGS, type ArtHeight, type Mood, type NagatoroState } from "./_types";
 
 const STATE_PATH = (() => {
   const pluginData = process.env.CLAUDE_PLUGIN_DATA;
@@ -44,10 +44,7 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
 
-const VALID_MOODS: Set<string> = new Set([
-  "teasing", "smug", "jealous", "flustered",
-  "bored", "serious", "happy", "laughing",
-]);
+const VALID_MOODS: Set<string> = new Set(Object.keys(MOOD_CONFIGS));
 
 function sanitizeNumber(v: unknown, fallback: number, min: number, max: number): number {
   if (typeof v !== "number" || Number.isNaN(v)) return fallback;

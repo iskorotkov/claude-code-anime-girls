@@ -11,7 +11,7 @@ function checkBinary(name: string, installHint: string): void {
   }
 }
 
-async function runCmd(cmd: string[], stdin?: undefined): Promise<void> {
+async function runCmd(cmd: string[]): Promise<void> {
   const proc = Bun.spawn(cmd, { stdout: "inherit", stderr: "inherit" });
   const code = await proc.exited;
   if (code !== 0) {

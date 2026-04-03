@@ -1,5 +1,5 @@
 import { describe, it, expect, mock, beforeEach, afterEach, spyOn } from "bun:test";
-import { makeState } from "./_test-utils";
+import { makeState, savedState } from "./_test-utils";
 import { GREETINGS } from "./_dialogue";
 
 const mockLoadState = mock(() => Promise.resolve(makeState()));
@@ -9,6 +9,7 @@ mock.module("./_helpers", () => ({
   loadState: mockLoadState,
   saveState: mockSaveState,
   runHook: mock(),
+  clamp: (n: number, min: number, max: number) => Math.min(max, Math.max(min, n)),
 }));
 
 const { run } = await import("./session-start");
@@ -26,10 +27,6 @@ afterEach(() => {
   randomSpy.mockRestore();
 });
 
-function savedState() {
-  return mockSaveState.mock.calls[0][0] as ReturnType<typeof makeState>;
-}
-
 const allTimeOfDayGreetings = [
   ...GREETINGS.morning,
   ...GREETINGS.afternoon,
@@ -43,7 +40,7 @@ describe("session-start hook", () => {
       const result = await run({ hook_event_name: "SessionStart" });
       const greeting = result.hookSpecificOutput.additionalContext;
       expect(GREETINGS.firstEver.some((g) => greeting.includes(g))).toBe(true);
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.boredom).toBe(0);
     });
   });
@@ -117,14 +114,14 @@ describe("session-start hook", () => {
     it("sets boredom to 0 before saving", async () => {
       mockLoadState.mockResolvedValueOnce(makeState({ boredom: 42 }));
       await run({ hook_event_name: "SessionStart" });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       expect(s.boredom).toBe(0);
     });
 
     it("updates lastInteraction before saving", async () => {
       const before = Date.now();
       await run({ hook_event_name: "SessionStart" });
-      const s = savedState();
+      const s = savedState(mockSaveState);
       const saved = new Date(s.lastInteraction!).getTime();
       expect(saved).toBeGreaterThanOrEqual(before);
       expect(saved).toBeLessThanOrEqual(Date.now());
