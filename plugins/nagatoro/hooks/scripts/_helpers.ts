@@ -64,6 +64,7 @@ export function sanitizeState(raw: Record<string, unknown>): NagatoroState {
     respect: sanitizeNumber(raw.respect, DEFAULT_STATE.respect, 0, 100),
     jealousyTarget: typeof raw.jealousyTarget === "string" ? raw.jealousyTarget : null,
     lastInteraction: typeof raw.lastInteraction === "string" ? raw.lastInteraction : null,
+    lastResetDate: typeof raw.lastResetDate === "string" ? raw.lastResetDate : null,
     totalPats: sanitizeCounter(raw.totalPats, DEFAULT_STATE.totalPats),
     totalInsults: sanitizeCounter(raw.totalInsults, DEFAULT_STATE.totalInsults),
     genuineMoments: sanitizeCounter(raw.genuineMoments, DEFAULT_STATE.genuineMoments),
@@ -74,3 +75,19 @@ export function sanitizeState(raw: Record<string, unknown>): NagatoroState {
   };
 }
 
+export function toLocalDateString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+export function applyDailyReset(state: NagatoroState, today: string): NagatoroState {
+  if (state.lastResetDate === today) return state;
+  return {
+    ...DEFAULT_STATE,
+    lastInteraction: state.lastInteraction,
+    artHeight: state.artHeight,
+    lastResetDate: today,
+  };
+}

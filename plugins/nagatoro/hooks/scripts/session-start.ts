@@ -1,4 +1,4 @@
-import { runHook, loadState, saveState } from "./_helpers";
+import { runHook, loadState, saveState, applyDailyReset, toLocalDateString } from "./_helpers";
 import { MOOD_CONFIGS, type HookOutput, type NagatoroState } from "./_types";
 import { applyMoodEffects, computeBoredom } from "./_mood";
 import { GREETINGS, pickLine, substituteRival } from "./_dialogue";
@@ -47,8 +47,9 @@ function buildSessionContext(state: NagatoroState, greeting: string): string {
 }
 
 export async function run(_input: SessionStartInput): Promise<HookOutput> {
-  const state = await loadState();
+  let state = await loadState();
   const now = new Date();
+  state = applyDailyReset(state, toLocalDateString(now));
   // Compute boredom from idle time so mood transition in applyMoodEffects
   // can check boredom >= 80 (triggering "bored" mood on long absence).
   state.boredom = computeBoredom(state, now);

@@ -1,15 +1,31 @@
 import { describe, it, expect, mock, beforeEach, afterEach, spyOn } from "bun:test";
 import { makeState, savedState } from "./_test-utils";
+import { DEFAULT_STATE } from "./_types";
 import { GREETINGS } from "./_dialogue";
 
 const mockLoadState = mock(() => Promise.resolve(makeState()));
 const mockSaveState = mock(() => Promise.resolve());
+
+const mockToLocalDateString = mock((date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+});
+
+const realDailyReset = (state: any, today: string) => {
+  if (state.lastResetDate === today) return state;
+  return { ...DEFAULT_STATE, lastInteraction: state.lastInteraction, artHeight: state.artHeight, lastResetDate: today };
+};
+const mockApplyDailyReset = mock((state: any) => state);
 
 mock.module("./_helpers", () => ({
   loadState: mockLoadState,
   saveState: mockSaveState,
   runHook: mock(),
   clamp: (n: number, min: number, max: number) => Math.min(max, Math.max(min, n)),
+  toLocalDateString: mockToLocalDateString,
+  applyDailyReset: mockApplyDailyReset,
 }));
 
 const { run } = await import("./session-start");
@@ -130,6 +146,30 @@ describe("session-start hook", () => {
     it("always calls saveState", async () => {
       await run({ hook_event_name: "SessionStart" });
       expect(mockSaveState).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("daily reset", () => {
+    it("resets state on day change", async () => {
+      mockApplyDailyReset.mockImplementationOnce(realDailyReset);
+      mockLoadState.mockResolvedValueOnce(
+        makeState({ lastResetDate: "2026-04-02", senpaiMeter: 80, lastInteraction: new Date().toISOString() }),
+      );
+      await run({ hook_event_name: "SessionStart" });
+      const s = savedState(mockSaveState);
+      expect(s.senpaiMeter).toBe(50);
+      expect(s.lastResetDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it("skips reset on same day", async () => {
+      mockApplyDailyReset.mockImplementationOnce(realDailyReset);
+      const today = mockToLocalDateString(new Date());
+      mockLoadState.mockResolvedValueOnce(
+        makeState({ lastResetDate: today, senpaiMeter: 80, lastInteraction: new Date().toISOString() }),
+      );
+      await run({ hook_event_name: "SessionStart" });
+      const s = savedState(mockSaveState);
+      expect(s.senpaiMeter).toBe(80);
     });
   });
 });

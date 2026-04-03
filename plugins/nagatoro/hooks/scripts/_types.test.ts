@@ -8,8 +8,8 @@ import {
 import { ALL_MOODS } from "./_test-utils";
 
 describe("DEFAULT_STATE", () => {
-  it("has all 13 NagatoroState keys", () => {
-    expect(Object.keys(DEFAULT_STATE)).toHaveLength(13);
+  it("has all 14 NagatoroState keys", () => {
+    expect(Object.keys(DEFAULT_STATE)).toHaveLength(14);
   });
 
   it("has correct initial mood and meters", () => {
@@ -32,6 +32,10 @@ describe("DEFAULT_STATE", () => {
 
   it("has default artHeight of 10", () => {
     expect(DEFAULT_STATE.artHeight).toBe(10);
+  });
+
+  it("has null lastResetDate", () => {
+    expect(DEFAULT_STATE.lastResetDate).toBeNull();
   });
 });
 

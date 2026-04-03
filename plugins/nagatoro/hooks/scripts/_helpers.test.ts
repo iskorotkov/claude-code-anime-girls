@@ -8,7 +8,7 @@ import { makeState } from "./_test-utils";
 const testDir = await mkdtemp(join(tmpdir(), "nagatoro-test-"));
 process.env.CLAUDE_PLUGIN_DATA = testDir;
 
-const { clamp, loadState, saveState } = await import("./_helpers");
+const { clamp, loadState, saveState, toLocalDateString, applyDailyReset } = await import("./_helpers");
 const statePath = join(testDir, "state.json");
 
 beforeEach(async () => {
@@ -133,5 +133,82 @@ describe("saveState", () => {
     await saveState(second);
     const loaded = await loadState();
     expect(loaded).toEqual(second);
+  });
+});
+
+describe("toLocalDateString", () => {
+  it("formats a known date", () => {
+    expect(toLocalDateString(new Date(2026, 3, 3))).toBe("2026-04-03");
+  });
+
+  it("pads single-digit month and day", () => {
+    expect(toLocalDateString(new Date(2026, 0, 5))).toBe("2026-01-05");
+  });
+
+  it("handles Dec 31", () => {
+    expect(toLocalDateString(new Date(2026, 11, 31))).toBe("2026-12-31");
+  });
+});
+
+describe("applyDailyReset", () => {
+  it("no reset when same day", () => {
+    const state = makeState({ lastResetDate: "2026-04-03" });
+    const result = applyDailyReset(state, "2026-04-03");
+    expect(result).toBe(state);
+  });
+
+  it("resets on new day", () => {
+    const state = makeState({
+      lastResetDate: "2026-04-02",
+      senpaiMeter: 80,
+      respect: 90,
+      totalPats: 42,
+      mood: "jealous",
+      jealousyTarget: "GPT",
+      artHeight: 16,
+      lastInteraction: "2026-04-02T23:00:00Z",
+    });
+    const result = applyDailyReset(state, "2026-04-03");
+    expect(result.mood).toBe("teasing");
+    expect(result.senpaiMeter).toBe(50);
+    expect(result.respect).toBe(50);
+    expect(result.totalPats).toBe(0);
+    expect(result.jealousyTarget).toBeNull();
+    expect(result.artHeight).toBe(16);
+    expect(result.lastInteraction).toBe("2026-04-02T23:00:00Z");
+    expect(result.lastResetDate).toBe("2026-04-03");
+  });
+
+  it("null lastResetDate triggers reset", () => {
+    const state = makeState({ lastResetDate: null });
+    const result = applyDailyReset(state, "2026-04-03");
+    expect(result).not.toBe(state);
+    expect(result.lastResetDate).toBe("2026-04-03");
+  });
+
+  it("preserves artHeight", () => {
+    const state = makeState({ lastResetDate: "2026-04-01", artHeight: 8 });
+    const result = applyDailyReset(state, "2026-04-03");
+    expect(result.artHeight).toBe(8);
+  });
+
+  it("preserves lastInteraction", () => {
+    const state = makeState({ lastResetDate: "2026-04-01", lastInteraction: "2026-04-02T10:00:00Z" });
+    const result = applyDailyReset(state, "2026-04-03");
+    expect(result.lastInteraction).toBe("2026-04-02T10:00:00Z");
+  });
+});
+
+describe("loadState - sanitize lastResetDate", () => {
+  it("passes through string lastResetDate", async () => {
+    await Bun.write(statePath, JSON.stringify({ lastResetDate: "2026-04-03" }));
+    const state = await loadState();
+    expect(state.lastResetDate).toBe("2026-04-03");
+  });
+
+  it("returns null for non-string lastResetDate", async () => {
+    await Bun.write(statePath, JSON.stringify({ lastResetDate: 12345 }));
+    const state = await loadState();
+    expect(state.lastResetDate).toBeNull();
   });
 });

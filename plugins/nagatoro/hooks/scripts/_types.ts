@@ -20,6 +20,7 @@ export interface NagatoroState {
   respect: number;
   jealousyTarget: string | null;
   lastInteraction: string | null;
+  lastResetDate: string | null;
   totalPats: number;
   totalInsults: number;
   genuineMoments: number;
@@ -46,6 +47,7 @@ export const DEFAULT_STATE: NagatoroState = {
   respect: 50,
   jealousyTarget: null,
   lastInteraction: null,
+  lastResetDate: null,
   totalPats: 0,
   totalInsults: 0,
   genuineMoments: 0,
