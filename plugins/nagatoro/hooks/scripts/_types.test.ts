@@ -8,8 +8,8 @@ import {
 import { ALL_MOODS } from "./_test-utils";
 
 describe("DEFAULT_STATE", () => {
-  it("has all 15 NagatoroState keys", () => {
-    expect(Object.keys(DEFAULT_STATE)).toHaveLength(15);
+  it("has all 14 NagatoroState keys", () => {
+    expect(Object.keys(DEFAULT_STATE)).toHaveLength(14);
   });
 
   it("has correct initial mood and meters", () => {
@@ -23,7 +23,6 @@ describe("DEFAULT_STATE", () => {
     expect(DEFAULT_STATE.totalPats).toBe(0);
     expect(DEFAULT_STATE.totalInsults).toBe(0);
     expect(DEFAULT_STATE.genuineMoments).toBe(0);
-    expect(DEFAULT_STATE.moodDecayCounter).toBe(0);
     expect(DEFAULT_STATE.consecutiveErrors).toBe(0);
     expect(DEFAULT_STATE.interactionCount).toBe(0);
     expect(DEFAULT_STATE.moodLockedFor).toBe(0);

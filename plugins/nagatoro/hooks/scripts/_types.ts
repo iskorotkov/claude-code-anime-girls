@@ -24,7 +24,6 @@ export interface NagatoroState {
   totalPats: number;
   totalInsults: number;
   genuineMoments: number;
-  moodDecayCounter: number;
   consecutiveErrors: number;
   interactionCount: number;
   moodLockedFor: number;
@@ -52,7 +51,6 @@ export const DEFAULT_STATE: NagatoroState = {
   totalPats: 0,
   totalInsults: 0,
   genuineMoments: 0,
-  moodDecayCounter: 0,
   consecutiveErrors: 0,
   interactionCount: 0,
   moodLockedFor: 0,

@@ -103,6 +103,18 @@ describe("loadState - corrupt values", () => {
     const state = await loadState();
     expect(state.mood).toBe("teasing");
   });
+
+  it("falls back to null for unparseable lastInteraction", async () => {
+    await saveState({ ...DEFAULT_STATE, lastInteraction: "not-a-date" } as any);
+    const s = await loadState();
+    expect(s.lastInteraction).toBeNull();
+  });
+
+  it("falls back to null for unparseable lastResetDate", async () => {
+    await saveState({ ...DEFAULT_STATE, lastResetDate: "garbage" } as any);
+    const s = await loadState();
+    expect(s.lastResetDate).toBeNull();
+  });
 });
 
 describe("saveState", () => {
@@ -172,7 +184,7 @@ describe("applyDailyReset", () => {
     expect(result.mood).toBe("teasing");
     expect(result.senpaiMeter).toBe(50);
     expect(result.respect).toBe(50);
-    expect(result.totalPats).toBe(0);
+    expect(result.totalPats).toBe(42);
     expect(result.jealousyTarget).toBeNull();
     expect(result.artHeight).toBe(16);
     expect(result.lastInteraction).toBe("2026-04-02T23:00:00Z");
@@ -196,6 +208,14 @@ describe("applyDailyReset", () => {
     const state = makeState({ lastResetDate: "2026-04-01", lastInteraction: "2026-04-02T10:00:00Z" });
     const result = applyDailyReset(state, "2026-04-03");
     expect(result.lastInteraction).toBe("2026-04-02T10:00:00Z");
+  });
+
+  it("preserves lifetime counters across daily reset", () => {
+    const state = { ...DEFAULT_STATE, lastResetDate: "2025-01-01", totalPats: 42, totalInsults: 7, genuineMoments: 3 };
+    const result = applyDailyReset(state, "2025-01-02");
+    expect(result.totalPats).toBe(42);
+    expect(result.totalInsults).toBe(7);
+    expect(result.genuineMoments).toBe(3);
   });
 });
 

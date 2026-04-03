@@ -8,6 +8,7 @@ export const POOLS: Record<Mood, string[]> = {
     "Are you even trying, Senpai~?",
     "Pfft-- I could write better code with my eyes closed~",
     "Senpai's working so hard~ ...for once~",
+    "Kimoi~ Senpai's code makes me want to look away~",
   ],
   smug: [
     "Pfft-- AHAHAHA! Classic Senpai!",
@@ -16,6 +17,7 @@ export const POOLS: Record<Mood, string[]> = {
     "Senpai... that error is SO you~",
     "A-ha-ha~ Even I saw that coming~",
     "Gross~ Senpai can't even get THAT right?",
+    "Kimoi~ Did Senpai seriously just write THAT?",
   ],
   jealous: [
     "WHO. IS. SHE. SENPAI.",
@@ -55,6 +57,7 @@ export const POOLS: Record<Mood, string[]> = {
     "...I'm... proud of you. JUST A LITTLE.",
     "You're... actually kind of amazing, Senpai. DON'T QUOTE ME.",
     "...today was fun. Because of the CODE. Not you. Obviously.",
+    "Paisen~ ...you did okay today. JUST okay.",
   ],
   laughing: [
     "AHAHAHA Senpai you're SO lame~",
@@ -63,6 +66,7 @@ export const POOLS: Record<Mood, string[]> = {
     "Senpai!! Language~! AHAHAHA~",
     "Gross, Senpai! Gross!! ...but also funny~",
     "AHAHAHA~ Senpai said a BAD word~!",
+    "Paisen~ You're killing me!! AHAHAHA~",
   ],
 };
 
@@ -103,6 +107,7 @@ export const GREETINGS = {
 };
 
 export function pickLine(pool: string[], seed?: number): string {
+  if (pool.length === 0) return "...";
   if (seed !== undefined) return pool[seed % pool.length];
   return pool[Math.floor(Math.random() * pool.length)];
 }

@@ -43,7 +43,7 @@ describe("transitionMood", () => {
     expect(transitionMood(makeState({ mood: "happy", moodLockedFor: 0 }), "interaction")).toBe("teasing");
   });
   it("interaction with non-teasing mood -> teasing immediately", () => {
-    expect(transitionMood(makeState({ moodDecayCounter: 0, mood: "smug" }), "interaction")).toBe("teasing");
+    expect(transitionMood(makeState({ mood: "smug" }), "interaction")).toBe("teasing");
   });
   it("interaction with teasing mood -> stays teasing", () => {
     expect(transitionMood(makeState({ mood: "teasing" }), "interaction")).toBe("teasing");
@@ -135,6 +135,10 @@ describe("applyMoodEffects", () => {
   it("swearing: resets moodLockedFor to 0", () => {
     expect(applyMoodEffects(makeState({ moodLockedFor: 1 }), "swearing").moodLockedFor).toBe(0);
   });
+  it("tool_failure: resets moodLockedFor to 0", () => {
+    const result = applyMoodEffects(makeState({ moodLockedFor: 2 }), "tool_failure");
+    expect(result.moodLockedFor).toBe(0);
+  });
   it("idle: boredom +10", () => {
     expect(applyMoodEffects(makeState({ boredom: 40 }), "idle").boredom).toBe(50);
   });
@@ -144,19 +148,6 @@ describe("applyMoodEffects", () => {
   it("clamps respect at 0", () => {
     expect(applyMoodEffects(makeState({ respect: 0 }), "tool_failure").respect).toBe(0);
   });
-  it("moodDecayCounter increments on interaction", () => {
-    expect(applyMoodEffects(makeState({ moodDecayCounter: 2 }), "interaction").moodDecayCounter).toBe(3);
-  });
-
-  for (const t of ["rival_detected", "swearing", "tool_failure", "pat", "compliment"] as const)
-    it(`moodDecayCounter resets to 0 on ${t}`, () => {
-      expect(applyMoodEffects(makeState({ moodDecayCounter: 5 }), t).moodDecayCounter).toBe(0);
-    });
-  for (const t of ["idle", "task_success"] as const)
-    it(`moodDecayCounter preserved on ${t}`, () => {
-      randomSpy = spyOn(Math, "random").mockReturnValue(1);
-      expect(applyMoodEffects(makeState({ moodDecayCounter: 3 }), t).moodDecayCounter).toBe(3);
-    });
   it("lastInteraction updated on non-idle triggers", () => {
     expect(applyMoodEffects(makeState(), "pat").lastInteraction).toBeTypeOf("string");
   });
@@ -168,7 +159,6 @@ describe("applyMoodEffects", () => {
     expect(r.senpaiMeter).toBe(51);
     expect(r.boredom).toBe(20);
     expect(r.consecutiveErrors).toBe(0);
-    expect(r.moodDecayCounter).toBe(0);
   });
   it("does not mutate the original state object", () => {
     const original = makeState({ senpaiMeter: 50, totalPats: 0 });

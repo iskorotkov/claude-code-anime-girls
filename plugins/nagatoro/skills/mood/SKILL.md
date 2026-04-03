@@ -29,12 +29,12 @@ Boredom:       [<filled><empty>] XX%
 
 Stats:
   Total pats: XX
-  Times Senpai swore: XX
+  Insults: XX
   Genuine moments: XX
   Jealousy target: <name or "None">
 ```
 
-Use 20-character bars with filled blocks and empty blocks to represent percentages.
+Use 10-character bars with filled blocks and empty blocks to represent percentages.
 
 ## Mood label table
 

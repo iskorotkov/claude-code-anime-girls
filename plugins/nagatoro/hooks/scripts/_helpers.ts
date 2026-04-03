@@ -63,12 +63,11 @@ export function sanitizeState(raw: Record<string, unknown>): NagatoroState {
     boredom: sanitizeNumber(raw.boredom, DEFAULT_STATE.boredom, 0, 100),
     respect: sanitizeNumber(raw.respect, DEFAULT_STATE.respect, 0, 100),
     jealousyTarget: typeof raw.jealousyTarget === "string" ? raw.jealousyTarget : null,
-    lastInteraction: typeof raw.lastInteraction === "string" ? raw.lastInteraction : null,
-    lastResetDate: typeof raw.lastResetDate === "string" ? raw.lastResetDate : null,
+    lastInteraction: typeof raw.lastInteraction === "string" && !isNaN(new Date(raw.lastInteraction).getTime()) ? raw.lastInteraction : null,
+    lastResetDate: typeof raw.lastResetDate === "string" && !isNaN(new Date(raw.lastResetDate).getTime()) ? raw.lastResetDate : null,
     totalPats: sanitizeCounter(raw.totalPats, DEFAULT_STATE.totalPats),
     totalInsults: sanitizeCounter(raw.totalInsults, DEFAULT_STATE.totalInsults),
     genuineMoments: sanitizeCounter(raw.genuineMoments, DEFAULT_STATE.genuineMoments),
-    moodDecayCounter: sanitizeCounter(raw.moodDecayCounter, DEFAULT_STATE.moodDecayCounter),
     consecutiveErrors: sanitizeCounter(raw.consecutiveErrors, DEFAULT_STATE.consecutiveErrors),
     interactionCount: sanitizeCounter(raw.interactionCount, DEFAULT_STATE.interactionCount),
     moodLockedFor: sanitizeCounter(raw.moodLockedFor, DEFAULT_STATE.moodLockedFor),
@@ -90,5 +89,8 @@ export function applyDailyReset(state: NagatoroState, today: string): NagatoroSt
     lastInteraction: state.lastInteraction,
     artHeight: state.artHeight,
     lastResetDate: today,
+    totalPats: state.totalPats,
+    totalInsults: state.totalInsults,
+    genuineMoments: state.genuineMoments,
   };
 }

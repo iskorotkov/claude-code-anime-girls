@@ -46,6 +46,14 @@ describe("pickLine", () => {
     expect(pickLine(pool)).toBe("a");
     spy.mockRestore();
   });
+
+  it("returns fallback for empty pool", () => {
+    expect(pickLine([])).toBe("...");
+  });
+
+  it("returns fallback for empty pool with seed", () => {
+    expect(pickLine([], 5)).toBe("...");
+  });
 });
 
 describe("substituteRival", () => {

@@ -34,7 +34,7 @@ describe("upper-bound clamping", () => {
 describe("transition boundaries", () => {
   it("interactionCount=20 does not trigger bored", () => {
     randomSpy = spyOn(Math, "random").mockReturnValue(0);
-    expect(transitionMood(makeState({ interactionCount: 20, moodDecayCounter: 0, mood: "teasing" }), "interaction")).toBe("teasing");
+    expect(transitionMood(makeState({ interactionCount: 20, mood: "teasing" }), "interaction")).toBe("teasing");
   });
   it("consecutiveErrors=3 still gives serious", () => {
     expect(transitionMood(makeState({ consecutiveErrors: 3 }), "tool_failure")).toBe("serious");
@@ -66,14 +66,3 @@ describe("computeBoredom edge cases", () => {
   });
 });
 
-describe("moodDecayCounter integration", () => {
-  it("first interaction transitions smug to teasing, second stays teasing", () => {
-    const s0 = makeState({ mood: "smug", moodDecayCounter: 0 });
-    const s1 = applyMoodEffects(s0, "interaction");
-    expect(s1.mood).toBe("teasing");
-    expect(s1.moodDecayCounter).toBe(1);
-    const s2 = applyMoodEffects(s1, "interaction");
-    expect(s2.mood).toBe("teasing");
-    expect(s2.moodDecayCounter).toBe(2);
-  });
-});

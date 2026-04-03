@@ -23,6 +23,9 @@ if (flag === "--resize") {
 } else if (trigger) {
   Object.assign(state, applyMoodEffects(state, trigger));
   await saveState(state);
+} else if (flag === "--interact") {
+  Object.assign(state, applyMoodEffects(state, "interaction"));
+  await saveState(state);
 } else if (flag !== "--read") {
   console.error(`Unknown flag: ${flag}`);
   process.exit(1);

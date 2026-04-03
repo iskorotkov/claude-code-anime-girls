@@ -170,4 +170,13 @@ describe("happy persistence lifecycle", () => {
     expect(s.mood).toBe("jealous");
     expect(s.moodLockedFor).toBe(0);
   });
+
+  it("tool_failure during locked happy clears lock", () => {
+    const happy = makeState({ mood: "happy", moodLockedFor: 1, respect: 50 });
+    const afterFail = applyMoodEffects(happy, "tool_failure");
+    expect(afterFail.mood).toBe("smug");
+    expect(afterFail.moodLockedFor).toBe(0);
+    const afterInteraction = applyMoodEffects(afterFail, "interaction");
+    expect(afterInteraction.mood).toBe("teasing");
+  });
 });

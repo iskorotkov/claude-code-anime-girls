@@ -104,4 +104,17 @@ describe("_cli", () => {
     const { exitCode } = await runCli("--resize");
     expect(exitCode).toBe(1);
   });
+
+  it("--interact increments interactionCount", async () => {
+    const { stdout } = await runCli("--interact");
+    const out = JSON.parse(stdout);
+    expect(out.interactionCount).toBe(1);
+  });
+
+  it("--interact transitions non-teasing mood to teasing", async () => {
+    await runCli("--pat");
+    const { stdout } = await runCli("--interact");
+    const out = JSON.parse(stdout);
+    expect(out.mood).toBe("teasing");
+  });
 });

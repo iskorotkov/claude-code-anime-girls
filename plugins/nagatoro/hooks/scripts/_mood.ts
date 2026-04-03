@@ -37,7 +37,7 @@ export function transitionMood(state: NagatoroState, trigger: MoodTrigger): Naga
 const EFFECTS: Record<MoodTrigger, (s: NagatoroState) => void> = {
   rival_detected: (s) => { s.senpaiMeter = clamp(s.senpaiMeter - 5, 0, 100); s.consecutiveErrors = 0; s.moodLockedFor = 0; },
   swearing: (s) => { s.totalInsults++; s.consecutiveErrors = 0; s.moodLockedFor = 0; },
-  tool_failure: (s) => { s.respect = clamp(s.respect - 1, 0, 100); s.consecutiveErrors++; },
+  tool_failure: (s) => { s.respect = clamp(s.respect - 1, 0, 100); s.consecutiveErrors++; s.moodLockedFor = 0; },
   pat: (s) => { s.senpaiMeter = clamp(s.senpaiMeter + 2, 0, 100); s.totalPats++; s.consecutiveErrors = 0; },
   compliment: (s) => { s.senpaiMeter = clamp(s.senpaiMeter + 3, 0, 100); s.consecutiveErrors = 0; },
   task_success: (s) => { s.respect = clamp(s.respect + 2, 0, 100); s.consecutiveErrors = 0; if (s.mood === "happy") { s.genuineMoments++; s.moodLockedFor = 1; } },
@@ -50,12 +50,6 @@ export function applyMoodEffects(state: NagatoroState, trigger: MoodTrigger): Na
   const next = { ...state };
   next.mood = transitionMood(state, trigger);
   EFFECTS[trigger](next);
-
-  if (trigger === "interaction") {
-    next.moodDecayCounter++;
-  } else if (trigger !== "idle" && trigger !== "task_success") {
-    next.moodDecayCounter = 0;
-  }
 
   if (trigger !== "idle") {
     next.lastInteraction = new Date().toISOString();
